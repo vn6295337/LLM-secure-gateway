@@ -14,7 +14,7 @@ app_port: 7860
 **A REST API that safely routes AI requests to multiple LLM providers with built-in security.**
 
 [![Live Demo](https://img.shields.io/badge/Live-Demo-blue)](https://vn6295337-secure-llm-api.hf.space)
-[![GitHub](https://img.shields.io/badge/GitHub-Repository-green)](https://github.com/vn6295337/poc-cloud-deploy)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-green)](https://github.com/vn6295337/secure-llm-router)
 [![API Docs](https://img.shields.io/badge/API-Documentation-orange)](https://vn6295337-secure-llm-api.hf.space/docs)
 
 ---
@@ -90,8 +90,8 @@ curl -X POST https://vn6295337-secure-llm-api.hf.space/query \
 
 ```bash
 # Clone the repository
-git clone https://github.com/vn6295337/poc-cloud-deploy
-cd poc-cloud-deploy
+git clone https://github.com/vn6295337/secure-llm-router
+cd secure-llm-router
 
 # Create a virtual environment
 python -m venv venv
@@ -250,7 +250,7 @@ curl -X POST https://vn6295337-secure-llm-api.hf.space/query \
 
 🔧 **For Developers**:
 - [Interactive API Docs](https://vn6295337-secure-llm-api.hf.space/docs) - Try the API in your browser
-- [GitHub Repository](https://github.com/vn6295337/poc-cloud-deploy) - Source code
+- [GitHub Repository](https://github.com/vn6295337/secure-llm-router) - Source code
 
 ---
 
@@ -298,5 +298,5 @@ MIT License - see [LICENSE](LICENSE) for details
 
 - **Live API**: https://vn6295337-secure-llm-api.hf.space
 - **API Docs**: https://vn6295337-secure-llm-api.hf.space/docs
-- **GitHub**: https://github.com/vn6295337/poc-cloud-deploy
+- **GitHub**: https://github.com/vn6295337/secure-llm-router
 - **Testing Guide**: [docs/api_testing_guide.md](docs/api_testing_guide.md)

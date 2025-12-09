@@ -232,7 +232,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 ### Project Structure
 
 ```
-poc-cloud-deploy/
+secure-llm-router/
 ├── main.py              # FastAPI app, endpoints, middleware
 ├── src/
 │   └── config.py        # LLM client, provider cascade logic

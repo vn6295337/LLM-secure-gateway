@@ -301,8 +301,8 @@ This project successfully demonstrates:
 
 - **Live API**: https://vn6295337-secure-llm-api.hf.space
 - **API Docs**: https://vn6295337-secure-llm-api.hf.space/docs
-- **GitHub**: https://github.com/vn6295337/poc-cloud-deploy
-- **Full Documentation**: [docs/](https://github.com/vn6295337/poc-cloud-deploy/tree/main/docs)
+- **GitHub**: https://github.com/vn6295337/secure-llm-router
+- **Full Documentation**: [docs/](https://github.com/vn6295337/secure-llm-router/tree/main/docs)
 
 ---
 

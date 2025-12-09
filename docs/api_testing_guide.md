@@ -2,7 +2,7 @@
 
 **Service URL**: https://vn6295337-secure-llm-api.hf.space
 **API Documentation**: https://vn6295337-secure-llm-api.hf.space/docs
-**Repository**: https://github.com/vn6295337/poc-cloud-deploy
+**Repository**: https://github.com/vn6295337/secure-llm-router
 
 ---
 
@@ -449,6 +449,6 @@ axios.post(API_URL, payload, { headers })
 
 ## Support
 
-- **Issues**: https://github.com/vn6295337/poc-cloud-deploy/issues
-- **Documentation**: https://github.com/vn6295337/poc-cloud-deploy
+- **Issues**: https://github.com/vn6295337/secure-llm-router/issues
+- **Documentation**: https://github.com/vn6295337/secure-llm-router
 - **Live Demo**: https://vn6295337-secure-llm-api.hf.space

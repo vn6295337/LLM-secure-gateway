@@ -3,7 +3,7 @@
 **Deployment Date**: 2024-12-08
 **Platform**: Hugging Face Spaces (Docker SDK)
 **Service URL**: https://vn6295337-secure-llm-api.hf.space
-**Repository**: https://github.com/vn6295337/poc-cloud-deploy
+**Repository**: https://github.com/vn6295337/secure-llm-router
 **HF Space**: https://huggingface.co/spaces/vn6295337/secure-llm-api
 
 ---

@@ -188,9 +188,9 @@ RATE_LIMIT=10/minute
 
 **Security**: Never commit actual `.env` file (add to `.gitignore`)
 
-## Tooling Comparison: poc-rag vs poc-cloud-deploy
+## Tooling Comparison: poc-rag vs secure-llm-router
 
-| Aspect | poc-rag | poc-cloud-deploy |
+| Aspect | poc-rag | secure-llm-router |
 |--------|---------|------------------|
 | **Base image** | python:3.11-slim | python:3.11-slim (same) |
 | **Framework** | Streamlit | FastAPI |
@@ -213,8 +213,8 @@ RATE_LIMIT=10/minute
 
 ```bash
 # Clone repository
-git clone https://github.com/vn6295337/poc-cloud-deploy.git
-cd poc-cloud-deploy
+git clone https://github.com/vn6295337/secure-llm-router.git
+cd secure-llm-router
 
 # Create virtual environment
 python3 -m venv venv
@@ -293,7 +293,7 @@ git clone https://huggingface.co/spaces/vn6295337/llm-router-poc
 cd llm-router-poc
 
 # 3. Copy files from local dev
-cp -r /path/to/poc-cloud-deploy/* .
+cp -r /path/to/secure-llm-router/* .
 
 # 4. Configure secrets in HF Spaces UI
 #    - Go to Space settings → Repository secrets

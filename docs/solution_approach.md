@@ -185,7 +185,7 @@ X-API-Key: your-api-key-here
 
 ## Differences from poc-rag
 
-| Aspect | poc-rag | poc-cloud-deploy |
+| Aspect | poc-rag | secure-llm-router |
 |--------|---------|------------------|
 | Interface | Streamlit UI | REST API (FastAPI) |
 | Complexity | 5 components (RAG pipeline) | 2 endpoints (simple router) |
