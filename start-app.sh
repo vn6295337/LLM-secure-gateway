@@ -7,5 +7,5 @@ if [ -z "$GEMINI_API_KEY" ] && [ -z "$GROQ_API_KEY" ] && [ -z "$OPENROUTER_API_K
     exit 1
 fi
 
-# Start uvicorn on HF Spaces default port
-exec uvicorn main:app --host 0.0.0.0 --port 7860
+# Start uvicorn on HF Spaces default port, pointing to src.main
+exec uvicorn src.main:app --host 0.0.0.0 --port 7860

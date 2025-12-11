@@ -1,4 +1,4 @@
-# Implementation Guide - Secure LLM Router API
+# Implementation Guide - LLM Secure Gateway
 
 This document explains how the project was built, key decisions made, and lessons learned.
 
@@ -120,7 +120,7 @@ This document explains how the project was built, key decisions made, and lesson
 ```python
 # main.py:22-28
 app = FastAPI(
-    title="Secure LLM Router API PoC",
+    title="LLM Secure Gateway PoC",
     description="A FastAPI service with secure LLM query routing",
     version="1.0.0",
     docs_url="/docs",
@@ -232,7 +232,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 ### Project Structure
 
 ```
-secure-llm-router/
+LLM-secure-gateway/
 ├── main.py              # FastAPI app, endpoints, middleware
 ├── src/
 │   └── config.py        # LLM client, provider cascade logic

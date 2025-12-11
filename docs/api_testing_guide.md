@@ -1,8 +1,8 @@
-# API Testing Guide - Secure LLM Router API
+# API Testing Guide - LLM Secure Gateway
 
 **Service URL**: https://vn6295337-secure-llm-api.hf.space
 **API Documentation**: https://vn6295337-secure-llm-api.hf.space/docs
-**Repository**: https://github.com/vn6295337/secure-llm-router
+**Repository**: https://github.com/vn6295337/LLM-secure-gateway
 
 ---
 
@@ -449,6 +449,6 @@ axios.post(API_URL, payload, { headers })
 
 ## Support
 
-- **Issues**: https://github.com/vn6295337/secure-llm-router/issues
-- **Documentation**: https://github.com/vn6295337/secure-llm-router
+- **Issues**: https://github.com/vn6295337/LLM-secure-gateway/issues
+- **Documentation**: https://github.com/vn6295337/LLM-secure-gateway
 - **Live Demo**: https://vn6295337-secure-llm-api.hf.space

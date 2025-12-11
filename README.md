@@ -1,5 +1,5 @@
 ---
-title: Secure LLM Router API
+title: LLM Secure Gateway
 emoji: 🔐
 colorFrom: blue
 colorTo: purple
@@ -9,12 +9,12 @@ license: mit
 app_port: 7860
 ---
 
-# 🔐 Secure LLM Router API
+# 🔐 LLM Secure Gateway
 
 **A REST API that safely routes AI requests to multiple LLM providers with built-in security.**
 
 [![Live Demo](https://img.shields.io/badge/Live-Demo-blue)](https://vn6295337-secure-llm-api.hf.space)
-[![GitHub](https://img.shields.io/badge/GitHub-Repository-green)](https://github.com/vn6295337/secure-llm-router)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-green)](https://github.com/vn6295337/LLM-secure-gateway)
 [![API Docs](https://img.shields.io/badge/API-Documentation-orange)](https://vn6295337-secure-llm-api.hf.space/docs)
 
 ---
@@ -90,8 +90,8 @@ curl -X POST https://vn6295337-secure-llm-api.hf.space/query \
 
 ```bash
 # Clone the repository
-git clone https://github.com/vn6295337/secure-llm-router
-cd secure-llm-router
+git clone https://github.com/vn6295337/LLM-secure-gateway
+cd LLM-secure-gateway
 
 # Create a virtual environment
 python -m venv venv
@@ -298,5 +298,5 @@ MIT License - see [LICENSE](LICENSE) for details
 
 - **Live API**: https://vn6295337-secure-llm-api.hf.space
 - **API Docs**: https://vn6295337-secure-llm-api.hf.space/docs
-- **GitHub**: https://github.com/vn6295337/secure-llm-router
+- **GitHub**: https://github.com/vn6295337/LLM-secure-gateway
 - **Testing Guide**: [docs/api_testing_guide.md](docs/api_testing_guide.md)

@@ -1,4 +1,4 @@
-# Security Testing Guide - Secure LLM Router API
+# Security Testing Guide - LLM Secure Gateway
 
 This document provides comprehensive security testing examples for the API.
 

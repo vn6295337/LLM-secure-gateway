@@ -18,6 +18,6 @@ jobs:
           BITBUCKET_USERNAME: vn6295337
           BITBUCKET_APP_PASSWORD: ${{ secrets.BITBUCKET_APP_PASSWORD }}
         run: |
-          git remote add bitbucket https://${BITBUCKET_USERNAME}:${BITBUCKET_APP_PASSWORD}@bitbucket.org/ai_portfolio/poc-secure-llm-router.git || true
+          git remote add bitbucket https://${BITBUCKET_USERNAME}:${BITBUCKET_APP_PASSWORD}@bitbucket.org/ai_portfolio/LLM-secure-gateway.git || true
           git push bitbucket --all --force
           git push bitbucket --tags --force

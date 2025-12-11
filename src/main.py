@@ -24,7 +24,7 @@ ENABLE_PROMPT_INJECTION_CHECK = os.getenv("ENABLE_PROMPT_INJECTION_CHECK", "true
 
 # --- FastAPI App Setup ---
 app = FastAPI(
-    title="Secure LLM Router API PoC",
+    title="LLM Secure Gateway",
     description="A FastAPI service with secure LLM query routing and multi-provider fallback.",
     version="1.0.0",
     docs_url="/docs",
@@ -74,8 +74,8 @@ INJECTION_PATTERNS = [
     r"system\s*:\s*",
     r"<\|im_start\|>",
     r"<\|im_end\|>",
-    r"\[INST\]",
-    r"\[/INST\]",
+    r"\[INST]",
+    r"\[/INST]",
 ]
 
 def detect_prompt_injection(prompt: str) -> bool:
@@ -174,4 +174,4 @@ async def query_llm(request: Request, query: QueryRequest, api_key: str = Depend
 # Optional: Root endpoint for basic access
 @app.get("/", include_in_schema=False)
 async def read_root():
-    return {"message": "Welcome to the Secure LLM Router API. Access /docs for API documentation."}
+    return {"message": "Welcome to the LLM Secure Gateway. Access /docs for API documentation."}

@@ -1,6 +1,6 @@
-# Operations Guide - Secure LLM Router API
+# Operations Guide - LLM Secure Gateway
 
-This guide covers running, deploying, monitoring, and troubleshooting the Secure LLM Router API.
+This guide covers running, deploying, monitoring, and troubleshooting the LLM Secure Gateway.
 
 ---
 
@@ -46,8 +46,8 @@ This guide covers running, deploying, monitoring, and troubleshooting the Secure
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/vn6295337/secure-llm-router
-cd secure-llm-router
+git clone https://github.com/vn6295337/LLM-secure-gateway
+cd LLM-secure-gateway
 
 # 2. Create virtual environment
 python -m venv venv
@@ -167,7 +167,7 @@ Pass via `-e` flag or `--env-file`:
 docker run -e SERVICE_API_KEY=abc123 -e GEMINI_API_KEY=xyz789 ...
 
 # Or use env file
-docker run --env-file .env secure-llm-router
+docker run --env-file .env LLM-secure-gateway
 ```
 
 ---
@@ -598,10 +598,10 @@ Before going to production, verify:
 
 ## Support & Resources
 
-- **Documentation**: https://github.com/vn6295337/secure-llm-router/tree/main/docs
+- **Documentation**: https://github.com/vn6295337/LLM-secure-gateway/tree/main/docs
 - **Live Demo**: https://vn6295337-secure-llm-api.hf.space
 - **API Docs**: https://vn6295337-secure-llm-api.hf.space/docs
-- **Issues**: https://github.com/vn6295337/secure-llm-router/issues
+- **Issues**: https://github.com/vn6295337/LLM-secure-gateway/issues
 
 ---
 

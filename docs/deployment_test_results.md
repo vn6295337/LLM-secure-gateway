@@ -1,9 +1,9 @@
-# Deployment Test Results - Secure LLM Router API
+# Deployment Test Results - LLM Secure Gateway
 
 **Deployment Date**: 2024-12-08
 **Platform**: Hugging Face Spaces (Docker SDK)
 **Service URL**: https://vn6295337-secure-llm-api.hf.space
-**Repository**: https://github.com/vn6295337/secure-llm-router
+**Repository**: https://github.com/vn6295337/LLM-secure-gateway
 **HF Space**: https://huggingface.co/spaces/vn6295337/secure-llm-api
 
 ---
