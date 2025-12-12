@@ -538,7 +538,7 @@ DASHBOARD_HTML = """
     }
 
     function addCommentary(text) {
-      logEl.textContent += `\n> ${text}`;
+      logEl.textContent += '\\n> ' + text;
       logEl.scrollTop = logEl.scrollHeight;
     }
 
@@ -607,7 +607,7 @@ DASHBOARD_HTML = """
 
     function clearVisual() {
       visualizer.innerHTML = '';
-      logEl.textContent = '> System ready.\n> Waiting for input...\n';
+      logEl.textContent = '> System ready.\\n> Waiting for input...\\n';
       metricLatency.textContent = '---';
       metricProvider.textContent = '---';
       metricTokensConsumed.textContent = '---';
@@ -621,7 +621,7 @@ DASHBOARD_HTML = """
     }
 
     function appendLog(line) {
-      logEl.textContent += line + '\n';
+      logEl.textContent += line + '\\n';
       logEl.scrollTop = logEl.scrollHeight;
     }
 
@@ -856,7 +856,7 @@ DASHBOARD_HTML = """
 
     document.getElementById('copy-snippet')?.addEventListener('click', ()=>{
       if (!lastRunData) { appendLog('> Nothing to copy. Run a card first.'); return; }
-      const snippet = `Title: ${SCENARIOS[lastRunData.scenario].title}\nResult: ${lastRunData.final}\nProvider: ${lastRunData.provider||'---'}\nLatency: ${lastRunData.latency||'---'}ms\nTokens: ${lastRunData.tokensConsumed||0}/${metricTokensMax.textContent}`;
+      const snippet = 'Title: ' + SCENARIOS[lastRunData.scenario].title + '\\nResult: ' + lastRunData.final + '\\nProvider: ' + (lastRunData.provider||'---') + '\\nLatency: ' + (lastRunData.latency||'---') + 'ms\\nTokens: ' + (lastRunData.tokensConsumed||0) + '/' + metricTokensMax.textContent;
       navigator.clipboard.writeText(snippet).then(()=> appendLog('> Exec snippet copied.'));
     });
 
