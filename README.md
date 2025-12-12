@@ -1,36 +1,13 @@
----
-title: LLM Secure Gateway
-emoji: 🔐
-colorFrom: blue
-colorTo: purple
-sdk: docker
-pinned: false
-license: mit
-app_port: 7860
----
-
-# 🔐 LLM Secure Gateway
+# ✨ LLM Secure Gateway
 
 **A REST API that safely routes AI requests to multiple LLM providers with built-in security.**
-
-[![Live Demo](https://img.shields.io/badge/Live-Demo-blue)](https://vn6295337-secure-llm-api.hf.space)
-[![GitHub](https://img.shields.io/badge/GitHub-Repository-green)](https://github.com/vn6295337/LLM-secure-gateway)
-[![API Docs](https://img.shields.io/badge/API-Documentation-orange)](https://vn6295337-secure-llm-api.hf.space/docs)
 
 ---
 
 ## ✨ Quick Look
 
-- **Live Demo**: [https://vn6295337-secure-llm-api.hf.space](https://vn6295337-secure-llm-api.hf.space)
-- **Interactive API Docs**: [https://vn6295337-secure-llm-api.hf.space/docs](https://vn6295337-secure-llm-api.hf.space/docs)
-
-**Example Query**:
-```bash
-curl -X POST https://vn6295337-secure-llm-api.hf.space/query \
-  -H "Content-Type: application/json" \
-  -H "X-API-Key: YOUR_API_KEY" \
-  -d '{"prompt": "Explain AI in simple terms", "max_tokens": 100}'
-```
+- **Self-Service Demo**: [https://vn6295337-secure-llm-api.hf.space](https://vn6295337-secure-llm-api.hf.space)
+- **Product Video Demo**: [https://vn6295337-secure-llm-api.hf.space/docs](https://vn6295337-secure-llm-api.hf.space/docs)
 
 ---
 
@@ -48,6 +25,16 @@ Traditional direct calls to AI providers can suffer from single points of failur
 
 The LLM Secure Gateway acts as a **smart proxy** that enhances your interaction with AI language models. It provides **active intelligence and resilience** for every critical step of an AI request lifecycle. It's an end-to-end LLM management partner that goes beyond basic API calls to deliver secure, highly available, and performant AI access.
 
+---
+
+**What This PoC Demonstrates:**
+
+✅ **Secure API Design**: Implementing robust authentication, sophisticated rate limiting, proactive input validation, and prompt injection detection.
+✅ **High Availability Patterns**: Showcasing multi-provider fallback, automatic retry mechanisms, and resilient service design.
+✅ **Production-Grade Deployment**: Utilizing Docker containerization and cloud hosting (Hugging Face Spaces) for scalable and reliable operations.
+✅ **Enhanced Developer Experience**: Providing auto-generated API documentation, clear error messages, and an easy-to-use API interface.
+✅ **Cost Optimization**: Demonstrating how to achieve production-quality service using free-tier infrastructure.
+
 **Impact Potential:**
 
 | Metric | Before (Direct Call) | After (Gateway) | Improvement |
@@ -64,7 +51,7 @@ The LLM Secure Gateway acts as a **smart proxy** that enhances your interaction 
 
 The LLM Secure Gateway is an end-to-end solution for managing AI requests, offering robust functionality beyond basic API routing:
 
-### 🔒 Security First
+### Security First
 - **API Key Authentication**: Only authorized users can access the service.
 - **Rate Limiting**: Prevents abuse and ensures fair usage (10 requests/minute per user).
 - **Input Validation**: Blocks invalid or dangerous requests before they reach the LLM.
@@ -72,19 +59,19 @@ The LLM Secure Gateway is an end-to-end solution for managing AI requests, offer
 - **CORS Configuration**: Controls origin access for enhanced browser security.
 - **HTTPS**: All traffic is encrypted to protect data in transit.
 
-### 🔄 High Availability & Reliability
+### High Availability & Reliability
 - **Multi-Provider Fallback**: Automatically cascades through Gemini, Groq, and OpenRouter if a primary provider fails.
 - **99.8% Uptime**: Achieved through intelligent redundancy and retry mechanisms.
 - **Automatic Retries**: If a provider fails, the gateway automatically retries with the next available LLM.
 
-### ⚡ Fast & Efficient Performance
+### Fast & Efficient Performance
 - **Optimized Response Time**: Average response times of 87-200ms.
 - **Auto-Scaling**: Designed to handle fluctuating traffic spikes without manual intervention.
 - **Zero Cost Deployment**: Can be deployed on free-tier infrastructure (e.g., Hugging Face Spaces) while maintaining production quality.
 
 ---
 
-## 📖 API Reference
+## ✨ API Reference
 
 ### Endpoints
 
@@ -123,7 +110,7 @@ The LLM Secure Gateway is an end-to-end solution for managing AI requests, offer
 
 ---
 
-## 🔒 Security Features: Deep Dive
+## ✨ Security Features: Deep Dive
 
 The LLM Secure Gateway prioritizes security at every layer:
 
@@ -157,7 +144,7 @@ curl -X POST https://vn6295337-secure-llm-api.hf.space/query \
 
 ---
 
-## ⚙️ How It Works: Architecture Overview
+## ✨ How It Works: Architecture Overview
 
 The gateway orchestrates requests through a robust, fault-tolerant pipeline:
 
@@ -195,7 +182,7 @@ Return 500 error (with details)
 
 ---
 
-## ⚡ Technical Highlights & Performance
+## ✨ Technical Highlights & Performance
 
 This project is built with a focus on modern, performant, and reliable technologies.
 
@@ -221,7 +208,7 @@ This project is built with a focus on modern, performant, and reliable technolog
 
 ---
 
-## 🚀 Getting Started
+## ✨ Getting Started
 
 Follow these steps to get your own LLM Secure Gateway up and running.
 
@@ -293,7 +280,7 @@ curl http://localhost:8000/health
 
 ---
 
-## 📚 Documentation & Resources
+## ✨ Documentation & Resources
 
 Explore detailed documentation and related resources:
 
@@ -308,7 +295,7 @@ Explore detailed documentation and related resources:
 
 ---
 
-## ❓ FAQ
+## ✨ FAQ
 
 **Q: Do I need my own API keys to use the gateway?**
 A: To deploy your own instance of the LLM Secure Gateway, yes, you will need API keys for the LLM providers you wish to use (Gemini, Groq, OpenRouter) and a `SERVICE_API_KEY` for the gateway itself. The live demo uses pre-configured keys.
@@ -329,28 +316,3 @@ A:
 A: Rate limiting is implemented at the application level using `SlowAPI` and works locally. On some cloud platforms (like Hugging Face Spaces), if requests are routed through a shared proxy, IP-based rate limiting might aggregate requests from different users under the same proxy IP. For more granular control in such environments, consider other rate limiting strategies or platform-specific configurations. Refer to the [deployment notes](docs/deployment_test_results.md) for more details.
 
 ---
-
-## ✅ What This Project Demonstrates
-
-This project serves as a comprehensive example of:
-
-✅ **Secure API Design**: Implementing robust authentication, sophisticated rate limiting, proactive input validation, and prompt injection detection.
-✅ **High Availability Patterns**: Showcasing multi-provider fallback, automatic retry mechanisms, and resilient service design.
-✅ **Production-Grade Deployment**: Utilizing Docker containerization and cloud hosting (Hugging Face Spaces) for scalable and reliable operations.
-✅ **Enhanced Developer Experience**: Providing auto-generated API documentation, clear error messages, and an easy-to-use API interface.
-✅ **Cost Optimization**: Demonstrating how to achieve production-quality service using free-tier infrastructure.
-
----
-
-## 📄 License
-
-MIT License - see [LICENSE](LICENSE) for details.
-
----
-
-## 🔗 Links
-
--   **Live API**: [https://vn6295337-secure-llm-api.hf.space](https://vn6295337-secure-llm-api.hf.space)
--   **API Docs**: [https://vn6295337-secure-llm-api.hf.space/docs](https://vn6295337-secure-llm-api.hf.space/docs)
--   **GitHub Repository**: [https://github.com/vn6295337/LLM-secure-gateway](https://github.com/vn6295337/LLM-secure-gateway)
--   **API Testing Guide**: [docs/api_testing_guide.md](docs/api_testing_guide.md)

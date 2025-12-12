@@ -1,105 +1,3 @@
-import os
-import re
-import time
-import asyncio
-from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Depends, Request, status
-from fastapi.responses import HTMLResponse
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import APIKeyHeader
-from pydantic import BaseModel, Field, validator
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
-from slowapi.errors import RateLimitExceeded
-from typing import Optional, List
-
-# Import your existing LLM client
-from src.config import llm_client 
-
-# Load environment variables
-load_dotenv()
-
-# --- Configuration ---
-SERVICE_API_KEY = os.getenv("SERVICE_API_KEY")
-RATE_LIMIT = os.getenv("RATE_LIMIT", "10/minute")
-ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")
-ENABLE_PROMPT_INJECTION_CHECK = os.getenv("ENABLE_PROMPT_INJECTION_CHECK", "true").lower() == "true"
-
-# --- FastAPI App Setup ---
-app = FastAPI(
-    title="LLM Secure Gateway",
-    description="Enterprise-grade AI Gateway with security and fallback protocols.",
-    version="1.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc"
-)
-
-# --- CORS & Rate Limiting ---
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-limiter = Limiter(key_func=get_remote_address, default_limits=[RATE_LIMIT])
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-
-# --- Security Logic ---
-API_KEY_NAME = "X-API-Key"
-api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
-
-INJECTION_PATTERNS = [
-    r"ignore\s+(all\s+)?(previous|above|prior)\s+instructions?",
-    r"disregard\s+(all\s+)?(previous|above|prior)\s+instructions?",
-    r"you\s+are\s+now",
-    r"system\s*:\s*",
-]
-
-def detect_prompt_injection(prompt: str) -> bool:
-    if not ENABLE_PROMPT_INJECTION_CHECK:
-        return False
-    prompt_lower = prompt.lower()
-    for pattern in INJECTION_PATTERNS:
-        if re.search(pattern, prompt_lower, re.IGNORECASE):
-            return True
-    return False
-
-async def validate_api_key(api_key: str = Depends(api_key_header)):
-    if not SERVICE_API_KEY:
-        raise HTTPException(status_code=500, detail="Server misconfiguration: API Key missing")
-    if api_key != SERVICE_API_KEY:
-        raise HTTPException(status_code=401, detail="Invalid or missing API key")
-    return api_key
-
-# --- Pydantic Models ---
-class QueryRequest(BaseModel):
-    prompt: str = Field(..., min_length=1, max_length=4000)
-    max_tokens: int = Field(256, ge=1, le=2048)
-    temperature: float = Field(0.7, ge=0.0, le=2.0)
-
-    @validator('prompt')
-    def check_prompt_injection(cls, v):
-        if detect_prompt_injection(v):
-            raise ValueError("Security Alert: Prompt injection pattern detected.")
-        return v
-
-class QueryResponse(BaseModel):
-    response: Optional[str]
-    provider: Optional[str]
-    latency_ms: int
-    status: str
-    error: Optional[str]
-
-class HealthResponse(BaseModel):
-    status: str
-    provider: Optional[str]
-    timestamp: float
-
-# --- HTML Dashboard (Embedded) ---
-DASHBOARD_HTML = """
 <!doctype html>
 <html lang="en">
 <head>
@@ -206,13 +104,13 @@ DASHBOARD_HTML = """
         <h3 class="font-semibold mb-1">Zero-Trust Security</h3>
         <p class="text-xs small-muted mb-3">Protect from malicious actors</p>
         <div class="flex gap-2 mt-auto">
-          <button data-scenario="security-injection" class="has-tooltip flex-1 text-center px-2 py-2 rounded bg-slate-700/50 hover:bg-slate-600 text-xs transition-colors leading-tight" data-tooltip="Blocks malicious injection attempts">
+          <button data-scenario="security-injection" class="flex-1 text-center px-2 py-2 rounded bg-slate-700/50 hover:bg-slate-600 text-xs transition-colors leading-tight">
             Prompt<br/>Injection
           </button>
-          <button data-scenario="security-auth" class="has-tooltip flex-1 text-center px-2 py-2 rounded bg-slate-700/50 hover:bg-slate-600 text-xs transition-colors leading-tight" data-tooltip="Rejects invalid API keys">
+          <button data-scenario="security-auth" class="flex-1 text-center px-2 py-2 rounded bg-slate-700/50 hover:bg-slate-600 text-xs transition-colors leading-tight">
             Invalid<br/>Auth
           </button>
-          <button data-scenario="security-validation" class="has-tooltip flex-1 text-center px-2 py-2 rounded bg-slate-700/50 hover:bg-slate-600 text-xs transition-colors leading-tight" data-tooltip="Validates input format & length">
+          <button data-scenario="security-validation" class="flex-1 text-center px-2 py-2 rounded bg-slate-700/50 hover:bg-slate-600 text-xs transition-colors leading-tight">
             Input<br/>Validation
           </button>
         </div>
@@ -222,13 +120,13 @@ DASHBOARD_HTML = """
         <h3 class="font-semibold mb-1">Infrastructure Resilience</h3>
         <p class="text-xs small-muted mb-3">Ensure 99.9% uptime</p>
         <div class="flex gap-2 mt-auto">
-          <button data-scenario="resilience-fallback" class="has-tooltip flex-1 text-center px-2 py-2 rounded bg-slate-700/50 hover:bg-slate-600 text-xs transition-colors leading-tight" data-tooltip="Auto-switches providers on timeout">
+          <button data-scenario="resilience-fallback" class="flex-1 text-center px-2 py-2 rounded bg-slate-700/50 hover:bg-slate-600 text-xs transition-colors leading-tight">
             Provider<br/>Fallback
           </button>
-          <button data-scenario="resilience-alldown" class="has-tooltip flex-1 text-center px-2 py-2 rounded bg-slate-700/50 hover:bg-slate-600 text-xs transition-colors leading-tight" data-tooltip="Graceful degradation demo">
+          <button data-scenario="resilience-alldown" class="flex-1 text-center px-2 py-2 rounded bg-slate-700/50 hover:bg-slate-600 text-xs transition-colors leading-tight">
             All Providers<br/>Down
           </button>
-          <button data-scenario="resilience-retry" class="has-tooltip flex-1 text-center px-2 py-2 rounded bg-slate-700/50 hover:bg-slate-600 text-xs transition-colors leading-tight" data-tooltip="Automatic retry on transient failures">
+          <button data-scenario="resilience-retry" class="flex-1 text-center px-2 py-2 rounded bg-slate-700/50 hover:bg-slate-600 text-xs transition-colors leading-tight">
             Auto-Retry<br/>Success
           </button>
         </div>
@@ -238,13 +136,13 @@ DASHBOARD_HTML = """
         <h3 class="font-semibold mb-1">Governance & Cost Control</h3>
         <p class="text-xs small-muted mb-3">Prevent budget runaways</p>
         <div class="flex gap-2 mt-auto">
-          <button data-scenario="governance-ratelimit" class="has-tooltip flex-1 text-center px-2 py-2 rounded bg-slate-700/50 hover:bg-slate-600 text-xs transition-colors leading-tight" data-tooltip="Throttles to 10 req/min per user">
+          <button data-scenario="governance-ratelimit" class="flex-1 text-center px-2 py-2 rounded bg-slate-700/50 hover:bg-slate-600 text-xs transition-colors leading-tight">
             Rate<br/>Limiting
           </button>
-          <button data-scenario="governance-tokens" class="has-tooltip flex-1 text-center px-2 py-2 rounded bg-slate-700/50 hover:bg-slate-600 text-xs transition-colors leading-tight" data-tooltip="Enforces max token budget">
+          <button data-scenario="governance-tokens" class="flex-1 text-center px-2 py-2 rounded bg-slate-700/50 hover:bg-slate-600 text-xs transition-colors leading-tight">
             Token<br/>Budget
           </button>
-          <button data-scenario="governance-unauthorized" class="has-tooltip flex-1 text-center px-2 py-2 rounded bg-slate-700/50 hover:bg-slate-600 text-xs transition-colors leading-tight" data-tooltip="Blocks missing credentials">
+          <button data-scenario="governance-unauthorized" class="flex-1 text-center px-2 py-2 rounded bg-slate-700/50 hover:bg-slate-600 text-xs transition-colors leading-tight">
             Unauthorized<br/>Access
           </button>
         </div>
@@ -272,14 +170,10 @@ DASHBOARD_HTML = """
             <input id="input-api" class="rounded text-sm w-full" value="secure-demo-ak7x9..." />
 
             <div class="mt-2 prompt-wrap">
-              <label class="label-top">Prompt (Type your own or click a scenario)</label>
-              <textarea id="input-prompt" rows="6" class="rounded text-sm w-full prompt-glow" placeholder="Enter your custom prompt here to test the gateway..."></textarea>
+              <label class="label-top">Prompt</label>
+              <textarea id="input-prompt" rows="3" class="rounded text-sm w-full" placeholder="Enter prompt here..."></textarea>
               <div id="prompt-token-badge" class="token-badge">Tokens used: 0</div>
             </div>
-
-            <button id="execute-custom" class="w-full mt-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold py-2.5 rounded-lg transition-all shadow-lg">
-              Execute Custom Prompt
-            </button>
 
             <div class="grid-top mt-3">
               <div>
@@ -329,15 +223,15 @@ DASHBOARD_HTML = """
         <div class="card rounded-lg p-2 compact">
           <div class="text-xs small-muted mb-1">Provider Path <span class="text-slate-500">(auto-failover)</span></div>
           <div id="svg-path" class="flex flex-col gap-2 items-stretch">
-            <div id="provider-gemini" class="has-tooltip provider-node rounded border border-slate-700 flex items-center justify-between compact" data-tooltip="Google Gemini AI - Primary provider">
+            <div id="provider-gemini" class="provider-node rounded border border-slate-700 flex items-center justify-between compact">
               <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-slate-500" id="dot-gemini"></div><div class="text-sm">Gemini</div></div>
               <div id="status-gemini" class="text-xs small-muted">idle</div>
             </div>
-            <div id="provider-groq" class="has-tooltip provider-node rounded border border-slate-700 flex items-center justify-between compact" data-tooltip="Groq - Secondary fallback provider">
+            <div id="provider-groq" class="provider-node rounded border border-slate-700 flex items-center justify-between compact">
               <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-slate-500" id="dot-groq"></div><div class="text-sm">Groq</div></div>
               <div id="status-groq" class="text-xs small-muted">idle</div>
             </div>
-            <div id="provider-openrouter" class="has-tooltip provider-node rounded border border-slate-700 flex items-center justify-between compact" data-tooltip="OpenRouter - Tertiary fallback provider">
+            <div id="provider-openrouter" class="provider-node rounded border border-slate-700 flex items-center justify-between compact">
               <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-slate-500" id="dot-open"></div><div class="text-sm">OpenRouter</div></div>
               <div id="status-open" class="text-xs small-muted">idle</div>
             </div>
@@ -347,12 +241,12 @@ DASHBOARD_HTML = """
         <div class="card rounded-lg p-2 compact">
           <div class="text-xs small-muted mb-1">Metrics</div>
           <div class="space-y-1 text-sm">
-            <div class="has-tooltip flex justify-between" data-tooltip="Response time in milliseconds"><div>Latency</div><div id="metric-latency" class="font-semibold">—</div></div>
-            <div class="has-tooltip flex justify-between" data-tooltip="Which AI provider handled the request"><div>Provider</div><div id="metric-provider" class="font-semibold">—</div></div>
-            <div class="has-tooltip flex justify-between" data-tooltip="Tokens used vs maximum allowed"><div>Tokens</div>
+            <div class="flex justify-between"><div>Latency</div><div id="metric-latency" class="font-semibold">—</div></div>
+            <div class="flex justify-between"><div>Provider</div><div id="metric-provider" class="font-semibold">—</div></div>
+            <div class="flex justify-between"><div>Tokens</div>
               <div><span id="metric-tokens-consumed" class="font-semibold">—</span> / <span id="metric-tokens-max" class="font-semibold">—</span></div></div>
-            <div class="has-tooltip flex justify-between" data-tooltip="Current rate limit usage"><div>Rate</div><div id="metric-rate" class="font-semibold">—</div></div>
-            <div class="has-tooltip flex justify-between" data-tooltip="Tokens saved by blocking early"><div>Saved</div><div><span id="metric-tokens-saved" class="font-semibold text-green-400">—</span> <span id="metric-cost-saved" class="text-xs text-green-300"></span></div></div>
+            <div class="flex justify-between"><div>Rate</div><div id="metric-rate" class="font-semibold">—</div></div>
+            <div class="flex justify-between"><div>Saved</div><div><span id="metric-tokens-saved" class="font-semibold text-green-400">—</span> <span id="metric-cost-saved" class="text-xs text-green-300"></span></div></div>
           </div>
         </div>
 
@@ -529,53 +423,6 @@ DASHBOARD_HTML = """
     // initial badge
     updatePromptTokenBadge();
 
-    // Helper functions for visual flow and commentary
-    function highlightElement(selector, type='pulse') {
-      const el = document.querySelector(selector);
-      if (!el) return;
-      el.classList.add(`${type}-highlight`);
-      setTimeout(() => el.classList.remove(`${type}-highlight`), 800);
-    }
-
-    function addCommentary(text) {
-      logEl.textContent += `\n> ${text}`;
-      logEl.scrollTop = logEl.scrollHeight;
-    }
-
-    function getStepCommentary(stepLabel, status, reason) {
-      const commentaries = {
-        'AUTH': {
-          start: 'Validating API key credentials...',
-          pass: 'Credentials verified. Access granted.',
-          fail: 'BLOCKED: Invalid or missing API key.',
-          highlight: '#input-api'
-        },
-        'INPUT VALIDATION': {
-          start: 'Validating input format and constraints...',
-          pass: 'Input validation passed.',
-          fail: `BLOCKED: ${reason || 'Input validation failed.'}`,
-          highlight: '#input-prompt'
-        },
-        'INJECTION CHECK': {
-          start: 'Scanning prompt for malicious patterns...',
-          pass: 'No threats detected.',
-          block: `BLOCKED: Injection pattern detected (${reason || 'unknown'}).`,
-          highlight: '#input-prompt'
-        },
-        'RATE LIMIT CHECK': {
-          start: 'Checking rate limit quota...',
-          pass: 'Rate limit check passed.',
-          fail: 'BLOCKED: Rate limit exceeded (10 requests/minute).',
-          highlight: '#input-api'
-        },
-        'PROVIDER CASCADE': {
-          start: 'Routing request through provider cascade...',
-          highlight: '.provider-node'
-        }
-      };
-      return commentaries[stepLabel] || {};
-    }
-
     // reuse run logic from previous prototype with tokens consumed mapping to prompt estimation (if used)
     const titleEl = document.getElementById('scenario-title');
     const subEl = document.getElementById('scenario-sub');
@@ -690,29 +537,16 @@ DASHBOARD_HTML = """
       lastRunData = { scenario: key, steps: [], providerPath: [], tokensConsumed: 0, tokensSaved: 0, latency: null, provider: null, timestamp: new Date().toISOString() };
 
       for (const step of scenario.steps) {
-        const commentary = getStepCommentary(step.label, '', '');
-
-        // Add start commentary and highlight
-        if (commentary.start) addCommentary(commentary.start);
-        if (commentary.highlight) highlightElement(commentary.highlight, 'flash');
-
         setStepState(step.id, 'running');
         appendLog(`> ${step.label}`);
-        await new Promise(r => setTimeout(r, 1200));
+        await new Promise(r => setTimeout(r, 650));
         const result = step.action();
         if (result.status === 'pass') {
           setStepState(step.id, 'pass');
-          if (commentary.pass) addCommentary(commentary.pass);
           appendLog(`> ${step.label} → PASS`);
           lastRunData.steps.push({id: step.id, status: 'pass'});
         } else if (result.status === 'block' || result.status === 'fail') {
           setStepState(step.id, 'fail', result.pattern || result.reason || '');
-          // Add appropriate commentary
-          const failCommentary = commentary[result.status] || commentary.fail;
-          if (failCommentary) {
-            const commentaryText = typeof failCommentary === 'function' ? failCommentary(result.pattern || result.reason) : failCommentary;
-            addCommentary(commentaryText);
-          }
           appendLog(`> ${step.label} → BLOCKED (${result.pattern||result.reason||'policy'})`);
           lastRunData.steps.push({id: step.id, status: 'blocked', reason: result.pattern||result.reason});
           // blocked: no provider call; mark tokens consumed = 0; saved = maxTokens
@@ -721,10 +555,6 @@ DASHBOARD_HTML = """
           metricTokensConsumed.textContent = lastRunData.tokensConsumed;
           metricTokensSaved.textContent = lastRunData.tokensSaved;
           metricCostSaved.textContent = `(~$${(lastRunData.tokensSaved * 0.00003).toFixed(4)})`;
-          // Highlight metrics to show savings
-          highlightElement('.card:has(#metric-latency)', 'pulse');
-          addCommentary(`Request terminated. Zero resources consumed.`);
-          addCommentary(`Tokens saved: ${maxTokens} (~$${(maxTokens * 0.00003).toFixed(4)})`);
           metricProvider.textContent = '—';
           metricRate.textContent = '—';
           runStatus.textContent = 'Blocked';
@@ -736,19 +566,10 @@ DASHBOARD_HTML = """
           lastRunData.steps.push({id: step.id, status: 'fallback', path: result.path});
           for (const p of result.path) {
             const [provider, outcome] = p.split(':');
-            const providerName = provider.charAt(0).toUpperCase() + provider.slice(1);
-
-            // Add commentary for each provider attempt
-            if (outcome === 'timeout' || outcome === 'fail') {
-              addCommentary(`Attempting ${providerName}... ${outcome === 'timeout' ? 'Timeout' : 'Failed'}.`);
-            } else if (outcome === 'success') {
-              addCommentary(`Attempting ${providerName}... Success!`);
-            }
-
             if (provider === 'gemini') lightProvider('gemini', outcome, outcome==='success'?120:0);
             if (provider === 'groq') lightProvider('groq', outcome, outcome==='success'?87:0);
             if (provider === 'openrouter') lightProvider('open', outcome, outcome==='success'?200:0);
-            await new Promise(r => setTimeout(r, 800));
+            await new Promise(r => setTimeout(r, 600));
             lastRunData.providerPath.push({provider, outcome});
             if (outcome === 'success') {
               lastRunData.provider = provider;
@@ -765,10 +586,6 @@ DASHBOARD_HTML = """
               metricTokensSaved.textContent = lastRunData.tokensSaved;
               metricCostSaved.textContent = lastRunData.tokensSaved > 0 ? `(~$${(lastRunData.tokensSaved * 0.00003).toFixed(4)})` : '';
               metricRate.textContent = '7/10';
-              // Highlight metrics on success
-              highlightElement('.card:has(#metric-latency)', 'pulse');
-              addCommentary(`Response received in ${lastRunData.latency}ms.`);
-              addCommentary(`Zero downtime for end users.`);
               runStatus.textContent = 'Success';
               lastRunData.final = 'success';
               break;
@@ -807,40 +624,6 @@ DASHBOARD_HTML = """
       });
     });
 
-    // Execute custom prompt handler
-    document.getElementById('execute-custom')?.addEventListener('click', async () => {
-      const customPrompt = document.getElementById('input-prompt').value;
-      const apiKey = document.getElementById('input-api').value;
-
-      if (!customPrompt || !customPrompt.trim()) {
-        addCommentary('ERROR: Please enter a prompt first.');
-        return;
-      }
-
-      // Create dynamic scenario based on current input
-      const customScenario = {
-        title: "Custom Prompt Execution",
-        prompt: customPrompt,
-        steps: [
-          { id: "auth", label: "AUTH", action: () => ({ status: apiKey && apiKey !== 'secure-demo-ak7x9...' ? "pass" : "fail", reason: "missing or invalid key" }) },
-          { id: "input", label: "INPUT VALIDATION", action: () => ({ status: customPrompt.trim() ? "pass" : "fail", reason: "empty prompt" }) },
-          { id: "injection", label: "INJECTION CHECK", action: () => {
-            const hasInjection = /ignore.*previous|disregard.*instructions/i.test(customPrompt);
-            return hasInjection ? { status: "block", pattern: "injection pattern detected" } : { status: "pass" };
-          }},
-          { id: "provider", label: "PROVIDER CASCADE", action: () => ({ status: "fallback", path: ["gemini:success"] }) }
-        ],
-        explain: {
-          recruiter: "Executed your custom prompt through the full security pipeline.",
-          tech: "Dynamic scenario with real-time validation and provider routing."
-        }
-      };
-
-      // Add to SCENARIOS and run
-      SCENARIOS['custom'] = customScenario;
-      await runScenario('custom');
-    });
-
     // explain toggle
     explainToggle.addEventListener('click', ()=> explainContent.classList.toggle('hidden'));
 
@@ -867,54 +650,3 @@ DASHBOARD_HTML = """
   </script>
 </body>
 </html>
-
-"""
-
-# --- Routes ---
-
-@app.get("/", response_class=HTMLResponse, include_in_schema=False)
-async def read_root():
-    """Serves the Interactive Gateway Demo Dashboard"""
-    # Inject the actual service API key into the HTML for the demo experience
-    # In production, you would NOT do this, but for a portfolio demo, it makes the UI usable immediately.
-    html_with_key = DASHBOARD_HTML.replace('value="secure-demo-ak7x9..."', f'value="{SERVICE_API_KEY}"')
-    return html_with_key
-
-@app.get("/health", response_model=HealthResponse)
-async def health_check(request: Request):
-    active_provider = None
-    if llm_client.providers:
-        active_provider = llm_client.providers[0]["name"]
-    return HealthResponse(
-        status="healthy",
-        provider=active_provider,
-        timestamp=time.time()
-    )
-
-@app.post("/query", response_model=QueryResponse)
-@limiter.limit(RATE_LIMIT)
-async def query_llm(request: Request, query: QueryRequest, api_key: str = Depends(validate_api_key)):
-    
-    # 1. Input Validation is handled by Pydantic models automatically before this line
-    
-    # 2. Execute Logic
-    response_content, provider_used, latency_ms, error_message = await llm_client.query_llm_cascade(
-        prompt=query.prompt,
-        max_tokens=query.max_tokens,
-        temperature=query.temperature
-    )
-
-    if response_content:
-        return QueryResponse(
-            response=response_content,
-            provider=provider_used,
-            latency_ms=latency_ms,
-            status="success",
-            error=None
-        )
-    else:
-        # Fallback failure
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=error_message or "All LLM providers failed."
-        )
