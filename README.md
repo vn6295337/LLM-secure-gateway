@@ -1,14 +1,3 @@
----
-title: LLM Secure Gateway
-emoji: 🛡️
-colorFrom: blue
-colorTo: purple
-sdk: docker
-sdk_version: "4.24"
-app_file: src/main.py
-pinned: false
----
-
 # ✨ LLM Secure Gateway
 
 **A REST API that safely routes AI requests to multiple LLM providers with built-in security.**
@@ -17,8 +6,8 @@ pinned: false
 
 ## ✨ Quick Look
 
-- **Self-Service Demo**: [https://vn6295337-secure-llm-api.hf.space](https://vn6295337-secure-llm-api.hf.space)
-- **Product Video Demo**: [https://vn6295337-secure-llm-api.hf.space/docs](https://vn6295337-secure-llm-api.hf.space/docs)
+- **Self-Service Demo**: [https://huggingface.co/spaces/vn6295337/LLM-secure-gateway](https://huggingface.co/spaces/vn6295337/LLM-secure-gateway)
+- **Product Video Demo**: [demo.mp4](https://github.com/vn6295337/LLM-secure-gateway/issues/1)
 
 ---
 
