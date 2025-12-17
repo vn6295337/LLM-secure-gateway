@@ -179,27 +179,45 @@ DASHBOARD_HTML = """
       <div class="feature-card card">
         <div class="feature-icon">Fault-Tolerant LLM Mesh</div>
         <div class="mt-2">
-          <button data-scenario="normal" class="card-button p-1.5 text-xs rounded bg-slate-800 hover:bg-slate-700 w-full h-12 flex items-center justify-center">Provider Cascade</button>
+          <button data-scenario="normal" class="card-button p-1.5 text-xs rounded bg-slate-800 hover:bg-slate-700 w-full h-12 flex flex-col items-center justify-center leading-tight">
+            <span>Provider</span>
+            <span>Cascade</span>
+          </button>
         </div>
       </div>
       <div class="feature-card card">
         <div class="feature-icon">Zero Trust Security</div>
         <div class="grid grid-cols-2 gap-1.5 mt-2">
-          <button data-scenario="injection" class="card-button p-1.5 text-xs rounded bg-slate-800 hover:bg-slate-700 h-12 flex items-center justify-center">Attack Prevention</button>
-          <button data-scenario="malformed" class="card-button p-1.5 text-xs rounded bg-slate-800 hover:bg-slate-700 h-12 flex items-center justify-center">Input Sanitization</button>
+          <button data-scenario="injection" class="card-button p-1.5 text-xs rounded bg-slate-800 hover:bg-slate-700 h-12 flex flex-col items-center justify-center leading-tight">
+            <span>Attack</span>
+            <span>Prevention</span>
+          </button>
+          <button data-scenario="malformed" class="card-button p-1.5 text-xs rounded bg-slate-800 hover:bg-slate-700 h-12 flex flex-col items-center justify-center leading-tight">
+            <span>Input</span>
+            <span>Sanitization</span>
+          </button>
         </div>
       </div>
       <div class="feature-card card">
         <div class="feature-icon">Adaptive Rate Control</div>
         <div class="mt-2">
-          <button data-scenario="rate-limit" class="card-button p-1.5 text-xs rounded bg-slate-800 hover:bg-slate-700 w-full h-12 flex items-center justify-center">Traffic Throttle</button>
+          <button data-scenario="rate-limit" class="card-button p-1.5 text-xs rounded bg-slate-800 hover:bg-slate-700 w-full h-12 flex flex-col items-center justify-center leading-tight">
+            <span>Traffic</span>
+            <span>Throttle</span>
+          </button>
         </div>
       </div>
       <div class="feature-card card">
         <div class="feature-icon">Glass Box Observability</div>
         <div class="grid grid-cols-2 gap-1.5 mt-2">
-          <button id="download-raw-card" class="card-button p-1.5 text-xs rounded bg-slate-800 hover:bg-slate-700 h-12 flex items-center justify-center">Export Trace</button>
-          <button id="copy-snippet-card" class="card-button p-1.5 text-xs rounded bg-slate-800 hover:bg-slate-700 h-12 flex items-center justify-center">Copy Snippet</button>
+          <button id="download-raw-card" class="card-button p-1.5 text-xs rounded bg-slate-800 hover:bg-slate-700 h-12 flex flex-col items-center justify-center leading-tight">
+            <span>Export</span>
+            <span>Trace</span>
+          </button>
+          <button id="copy-snippet-card" class="card-button p-1.5 text-xs rounded bg-slate-800 hover:bg-slate-700 h-12 flex flex-col items-center justify-center leading-tight">
+            <span>Copy</span>
+            <span>Snippet</span>
+          </button>
         </div>
       </div>
     </div>
