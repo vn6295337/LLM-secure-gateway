@@ -112,6 +112,8 @@ DASHBOARD_HTML = """
     .prompt-glow {
       border: 2px solid #3b82f6 !important;
       box-shadow: 0 0 12px rgba(59, 130, 246, 0.3) !important;
+      border-radius: 8px !important;
+      padding: 8px !important;
     }
     
     /* ===== GRID-BASED LAYOUT BALANCE ===== */
