@@ -115,6 +115,7 @@ DASHBOARD_HTML = """
       border-radius: 8px !important;
       padding: 8px !important;
       background: #071028;
+      overflow: hidden; /* Fixes Point 2: Clips child elements to the rounded corners */
     }
     
     /* ===== GRID-BASED LAYOUT BALANCE ===== */
@@ -239,7 +240,8 @@ DASHBOARD_HTML = """
             <div class="prompt-wrap prompt-glow">
               <textarea id="input-prompt"
                         class="w-full h-[calc(4rem-16px)] focus-ring text-xs p-1.5"
-                        style="background: transparent !important;" placeholder="Ask anything...">Explain quantum computing in simple terms</textarea>
+                        style="background: transparent !important; border: none !important; outline: none !important; box-shadow: none !important;"
+                        placeholder="Ask anything...">Explain quantum computing in simple terms</textarea>
               <div class="token-badge" id="token-counter">~10 tokens</div>
             </div>
 
