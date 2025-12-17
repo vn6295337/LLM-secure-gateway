@@ -772,41 +772,50 @@ DASHBOARD_HTML = """
           break;
         } else if (result.status === 'fallback') {
           // Custom Logic for Router and Provider Visuals
-
-          // Router starts running
-          updatePipelineVisual('router', 'running');
-          appendLog(`> ROUTER: Analyzing provider health...`);
-          await new Promise(r => setTimeout(r, 1000));
-
-          // Router completes - failover triggered
-          updatePipelineVisual('router', 'pass');
-          appendLog(`> ROUTER: Failover triggered. Finding best provider...`);
-          await new Promise(r => setTimeout(r, 800));
-
-          // Provider starts running
-          updatePipelineVisual('provider', 'running');
-          appendLog(`> PROVIDER: Testing providers...`);
-          await new Promise(r => setTimeout(r, 800));
+          // Router activates once per provider attempt
 
           lastRunData.steps.push({id: step.id, status: 'fallback', path: result.path});
           for (const p of result.path) {
             const [provider, outcome] = p.split(':');
             const providerName = provider.charAt(0).toUpperCase() + provider.slice(1);
 
-            // Add commentary for each provider attempt
-            if (outcome === 'timeout' || outcome === 'fail') {
-              addCommentary(`Attempting ${providerName}... ${outcome === 'timeout' ? 'Timeout' : 'Failed'}.`);
-            } else if (outcome === 'success') {
-              addCommentary(`Attempting ${providerName}... Success!`);
-            }
+            // Router activates for this provider attempt
+            updatePipelineVisual('router', 'running');
+            appendLog(`> ROUTER: Attempting ${providerName}...`);
+            await new Promise(r => setTimeout(r, 1000));
 
+            // Light up the provider badge
             if (provider === 'gemini') lightProvider('gemini', outcome, outcome==='success'?120:0);
             if (provider === 'groq') lightProvider('groq', outcome, outcome==='success'?87:0);
             if (provider === 'openrouter') lightProvider('open', outcome, outcome==='success'?200:0);
-            await new Promise(r => setTimeout(r, 1400));
+            await new Promise(r => setTimeout(r, 800));
+
             lastRunData.providerPath.push({provider, outcome});
-            if (outcome === 'success') {
-              // Mark provider as pass when we find a successful one
+
+            if (outcome === 'timeout' || outcome === 'fail') {
+              // Provider failed - deactivate router and try next
+              addCommentary(`Attempting ${providerName}... ${outcome === 'timeout' ? 'Timeout' : 'Failed'}.`);
+              appendLog(`> ROUTER: ${providerName} ${outcome === 'timeout' ? 'timeout' : 'failed'}. Trying next...`);
+              // Deactivate router (go back to inactive state)
+              const routerNode = document.getElementById('step-router');
+              if (routerNode) {
+                routerNode.classList.remove('active', 'pulse-highlight');
+                routerNode.classList.add('opacity-50');
+              }
+              await new Promise(r => setTimeout(r, 600));
+            } else if (outcome === 'success') {
+              // Provider succeeded - router passes, then show inferencing
+              addCommentary(`Attempting ${providerName}... Success!`);
+              appendLog(`> ROUTER: ${providerName} connected successfully!`);
+              updatePipelineVisual('router', 'pass');
+              await new Promise(r => setTimeout(r, 800));
+
+              // Now show inferencing (provider step)
+              updatePipelineVisual('provider', 'running');
+              appendLog(`> INFERENCING: Generating response...`);
+              await new Promise(r => setTimeout(r, 1200));
+
+              // Inferencing complete
               updatePipelineVisual('provider', 'pass', { provider: provider });
               lastRunData.provider = provider;
               lastRunData.latency = provider==='groq'?87:(provider==='gemini'?120:200);
