@@ -179,27 +179,27 @@ DASHBOARD_HTML = """
       <div class="feature-card card">
         <div class="feature-icon">Fault-Tolerant LLM Mesh</div>
         <div class="mt-2">
-          <button data-scenario="normal" class="card-button p-1.5 text-xs rounded hover:bg-slate-700 w-full">Normal Request</button>
+          <button data-scenario="normal" class="card-button p-1.5 text-xs rounded bg-slate-800 hover:bg-slate-700 w-full h-12 flex items-center justify-center">Provider Cascade</button>
         </div>
       </div>
       <div class="feature-card card">
         <div class="feature-icon">Zero Trust Security</div>
         <div class="grid grid-cols-2 gap-1.5 mt-2">
-          <button data-scenario="injection" class="card-button p-1.5 text-xs rounded hover:bg-slate-700">Injection Block</button>
-          <button data-scenario="malformed" class="card-button p-1.5 text-xs rounded hover:bg-slate-700">Input Validation</button>
+          <button data-scenario="injection" class="card-button p-1.5 text-xs rounded bg-slate-800 hover:bg-slate-700 h-12 flex items-center justify-center">Attack Prevention</button>
+          <button data-scenario="malformed" class="card-button p-1.5 text-xs rounded bg-slate-800 hover:bg-slate-700 h-12 flex items-center justify-center">Input Sanitization</button>
         </div>
       </div>
       <div class="feature-card card">
         <div class="feature-icon">Adaptive Rate Control</div>
         <div class="mt-2">
-          <button data-scenario="rate-limit" class="card-button p-1.5 text-xs rounded hover:bg-slate-700 w-full">Rate Limit Test</button>
+          <button data-scenario="rate-limit" class="card-button p-1.5 text-xs rounded bg-slate-800 hover:bg-slate-700 w-full h-12 flex items-center justify-center">Traffic Throttle</button>
         </div>
       </div>
       <div class="feature-card card">
         <div class="feature-icon">Glass Box Observability</div>
         <div class="grid grid-cols-2 gap-1.5 mt-2">
-          <button id="download-raw-card" class="card-button p-1.5 text-xs rounded hover:bg-slate-700">Download</button>
-          <button id="copy-snippet-card" class="card-button p-1.5 text-xs rounded hover:bg-slate-700">Copy</button>
+          <button id="download-raw-card" class="card-button p-1.5 text-xs rounded bg-slate-800 hover:bg-slate-700 h-12 flex items-center justify-center">Export Trace</button>
+          <button id="copy-snippet-card" class="card-button p-1.5 text-xs rounded bg-slate-800 hover:bg-slate-700 h-12 flex items-center justify-center">Copy Snippet</button>
         </div>
       </div>
     </div>
@@ -255,54 +255,61 @@ DASHBOARD_HTML = """
   
   <div class="w-full flex flex-col items-center justify-center relative z-10">
     <h2 class="font-mono text-xs text-slate-400 mb-3 tracking-widest uppercase text-center">Request Lifecycle</h2>
-    
-    <div class="flex items-center justify-center space-x-4 w-full max-w-4xl">
-      
-      <div id="step-auth" class="flex flex-col items-center group transition-all duration-300 opacity-50 flex-shrink-0">
-        <div class="w-12 h-12 rounded-lg border border-slate-700 bg-slate-900 flex items-center justify-center mb-2 shadow-lg group-[.active]:border-blue-500 group-[.active]:shadow-blue-500/20 icon-container">
-          <span class="text-xl mx-auto">🔐</span>
+
+    <div class="flex items-start justify-center gap-2 w-full max-w-4xl">
+
+      <!-- Auth Step -->
+      <div id="step-auth" class="flex flex-col items-center transition-all duration-300 opacity-50 w-20">
+        <div class="w-12 h-12 rounded-lg border border-slate-700 bg-slate-900 flex items-center justify-center mb-2 shadow-lg">
+          <span class="text-xl">🔐</span>
         </div>
-        <span class="text-compact uppercase tracking-wider font-semibold text-slate-500 group-[.active]:text-blue-400 text-center w-full block">Auth</span>
+        <span class="text-compact uppercase tracking-wider font-semibold text-slate-500 text-center w-full h-8 flex items-center justify-center">Auth</span>
       </div>
 
-      <div class="flex items-center h-12 mx-2 flex-shrink-0">
-        <div class="h-0.5 flex-1 bg-slate-800 relative min-w-[40px]">
+      <!-- Connector 1 -->
+      <div class="flex items-center pt-5 flex-1">
+        <div class="h-0.5 w-full bg-slate-800 relative">
           <div class="absolute inset-0 bg-blue-500 w-0 transition-all duration-500" id="line-1"></div>
         </div>
       </div>
 
-      <div id="step-guard" class="flex flex-col items-center transition-all duration-300 opacity-50 flex-shrink-0">
-        <div class="w-12 h-12 rounded-lg border border-slate-700 bg-slate-900 flex items-center justify-center mb-2 shadow-lg icon-container">
-          <span class="text-xl mx-auto">🛡️</span>
+      <!-- Guardrail Step -->
+      <div id="step-guard" class="flex flex-col items-center transition-all duration-300 opacity-50 w-20">
+        <div class="w-12 h-12 rounded-lg border border-slate-700 bg-slate-900 flex items-center justify-center mb-2 shadow-lg">
+          <span class="text-xl">🛡️</span>
         </div>
-        <span class="text-compact uppercase tracking-wider font-semibold text-slate-500 text-center w-full block">Guardrail</span>
+        <span class="text-compact uppercase tracking-wider font-semibold text-slate-500 text-center w-full h-8 flex items-center justify-center">Guardrail</span>
       </div>
 
-      <div class="flex items-center h-12 mx-2 flex-shrink-0">
-        <div class="h-0.5 flex-1 bg-slate-800 relative min-w-[40px]">
+      <!-- Connector 2 -->
+      <div class="flex items-center pt-5 flex-1">
+        <div class="h-0.5 w-full bg-slate-800 relative">
           <div class="absolute inset-0 bg-blue-500 w-0 transition-all duration-500" id="line-2"></div>
         </div>
       </div>
 
-      <div id="step-router" class="flex flex-col items-center transition-all duration-300 opacity-50 flex-shrink-0">
-        <div class="w-12 h-12 rounded-full border-2 border-slate-600 bg-slate-800 flex items-center justify-center mb-2 z-20 icon-container">
-          <span class="text-xl mx-auto">🔀</span>
+      <!-- Router Step -->
+      <div id="step-router" class="flex flex-col items-center transition-all duration-300 opacity-50 w-20">
+        <div class="w-12 h-12 rounded-lg border border-slate-700 bg-slate-900 flex items-center justify-center mb-2 shadow-lg">
+          <span class="text-xl">🔀</span>
         </div>
-        <span class="text-compact uppercase tracking-wider font-semibold text-slate-500 text-center w-full block">Router</span>
+        <span class="text-compact uppercase tracking-wider font-semibold text-slate-500 text-center w-full h-8 flex items-center justify-center">Router</span>
       </div>
 
-      <div class="flex items-center h-12 mx-2 flex-shrink-0">
-        <div class="h-0.5 flex-1 bg-slate-800 relative min-w-[40px]">
+      <!-- Connector 3 -->
+      <div class="flex items-center pt-5 flex-1">
+        <div class="h-0.5 w-full bg-slate-800 relative">
           <div class="absolute inset-0 bg-blue-500 w-0 transition-all duration-500" id="line-3"></div>
         </div>
       </div>
 
-      <div id="step-llm" class="flex flex-col items-center transition-all duration-300 opacity-50 flex-shrink-0">
-        <div class="w-12 h-12 rounded-lg border border-slate-700 bg-slate-900 flex items-center justify-center mb-2 shadow-lg relative icon-container">
-          <span class="text-xl mx-auto">🤖</span>
+      <!-- Inference Step -->
+      <div id="step-llm" class="flex flex-col items-center transition-all duration-300 opacity-50 w-20">
+        <div class="w-12 h-12 rounded-lg border border-slate-700 bg-slate-900 flex items-center justify-center mb-2 shadow-lg relative">
+          <span class="text-xl">🤖</span>
           <div id="active-provider-badge" class="absolute -top-2 -right-2 bg-green-500 text-black text-micro px-1 rounded font-bold hidden">GROQ</div>
         </div>
-        <span class="text-compact uppercase tracking-wider font-semibold text-slate-500 text-center w-full block">Inference</span>
+        <span class="text-compact uppercase tracking-wider font-semibold text-slate-500 text-center w-full h-8 flex items-center justify-center">Inference</span>
       </div>
 
     </div>
