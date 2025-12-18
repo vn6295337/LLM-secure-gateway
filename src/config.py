@@ -1182,7 +1182,7 @@ DASHBOARD_HTML = """
           metricRate.textContent = '---';
           metricStatus.textContent = 'Blocked';
           lastRunData.final = 'blocked';
-          break;
+          return;
         } else if (result.status === 'fallback') {
           // Custom Logic for Router and Provider Visuals
           // Router activates once per provider attempt
@@ -1315,7 +1315,7 @@ DASHBOARD_HTML = """
 
               metricStatus.textContent = 'Success';
               lastRunData.final = 'success';
-              break;
+              return;
             }
           }
         } else if (result.status === 'skipped') {
