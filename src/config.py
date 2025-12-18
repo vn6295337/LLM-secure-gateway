@@ -862,26 +862,19 @@ DASHBOARD_HTML = """
       setTimeout(() => el.classList.remove(`${type}-highlight`), 1000);
     }
 
-    // Display batch metrics table in status area
+    // Display batch metrics in status area
     function displayBatchMetricsInStatus(startMetrics) {
       const failuresInBatch = sessionMetrics.modelFailures - startMetrics.modelFailures;
       const downtimeInBatch = sessionMetrics.downtimePrevented - startMetrics.downtimePrevented;
-      const modelsTestedInBatch = sessionMetrics.uniqueModels.size - startMetrics.uniqueModels;
 
-      // Build metrics table HTML
+      // Build simplified metrics HTML
       const metricsHTML = `
         <div class="text-sm text-slate-300">
-          <div class="mb-2 text-center font-bold">[SUMMARY] BATCH RESILIENCE TEST RESULTS</div>
-          <div class="font-mono text-xs">
-            <div>┌──────────────────────────────────────┬──────────────┐</div>
-            <div>│ Metric                               │ Value        │</div>
-            <div>├──────────────────────────────────────┼──────────────┤</div>
-            <div>│ Scenarios Executed                   │ 2            │</div>
-            <div>│ Model Failures Handled               │ ${String(failuresInBatch).padStart(12)} │</div>
-            <div>│ Unique Models Tested                 │ ${String(modelsTestedInBatch).padStart(12)} │</div>
-            <div>│ Downtime Prevented                   │ ${String(downtimeInBatch + ' min').padStart(12)} │</div>
-            <div>│ System Reliability                   │ 100%         │</div>
-            <div>└──────────────────────────────────────┴──────────────┘</div>
+          <div class="mb-3 text-center font-bold">[SUMMARY] BATCH RESILIENCE TEST RESULTS</div>
+          <div class="space-y-1">
+            <div>Model Failures Handled: ${failuresInBatch}</div>
+            <div>Downtime Prevented: ${downtimeInBatch} min</div>
+            <div>System Reliability: 100%</div>
           </div>
         </div>
       `;
