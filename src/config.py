@@ -195,7 +195,7 @@ DASHBOARD_HTML = """
       <div class="feature-card card">
         <div class="feature-icon">Adaptive Cost Control</div>
         <div class="mt-2">
-          <button data-scenario="rate-limit" class="card-button p-1.5 text-xs rounded bg-slate-800 hover:bg-slate-700 w-full h-12 flex flex-col items-center justify-center leading-tight">
+          <button data-scenario="cost" class="card-button p-1.5 text-xs rounded bg-slate-800 hover:bg-slate-700 w-full h-12 flex flex-col items-center justify-center leading-tight">
             <span>Optimize</span>
             <span>Costs</span>
           </button>
@@ -578,6 +578,24 @@ DASHBOARD_HTML = """
           tech: "Input validation failed due to empty prompt. Request rejected before processing.",
           recruiter: "Shows data quality enforcement preventing malformed requests."
         }
+      },
+      cost: {
+        title: "Cost Optimization",
+        prompt: "Summarize the key points from this quarterly earnings report.",
+        apiKey: "secure-demo-ak7x9...",
+        maxTokens: 256,
+        temperature: 0.7,
+        steps: [
+          { id: "auth", label: "AUTH", action: () => ({ status: "pass" }) },
+          { id: "input", label: "INPUT VALIDATION", action: () => ({ status: "pass" }) },
+          { id: "injection", label: "INJECTION CHECK", action: () => ({ status: "pass" }) },
+          { id: "router", label: "INTELLIGENT ROUTING", action: null }, // Will be set dynamically
+          { id: "provider", label: "PROVIDER CASCADE", action: () => ({ status: "success" }) }
+        ],
+        explain: {
+          tech: "Intelligent routing selects optimal model based on task complexity and cost efficiency.",
+          recruiter: "Demonstrates cost optimization through task-appropriate model selection."
+        }
       }
     };
     
@@ -603,6 +621,31 @@ DASHBOARD_HTML = """
       adversarialBlocked: 0,      // Count of injection attempts blocked
       piiLeaksPrevented: 0,       // Count of PII exposures stopped
       complianceFinesAvoided: 0   // Dollar value of GDPR/CCPA fines prevented
+    };
+
+    // Cost optimization model data (from Artificial Analysis)
+    const COST_MODELS = {
+      documentSummarization: {
+        selected: { name: 'Apriel-v1.6-15B-Thinker', price: 0.00, intelligence: 57.0 },
+        premium: { name: 'Claude 3 Opus', price: 30.00 },
+        prompt: 'Summarize the key points from this quarterly earnings report.',
+        tokensPerRequest: 50000, // 50K tokens per document
+        requestsPerYear: 2000
+      },
+      financialAnalysis: {
+        selected: { name: 'Nova 2.0 Lite', price: 0.85, intelligence: 57.7 },
+        premium: { name: 'GPT-4', price: 37.50 },
+        prompt: 'Analyze the financial risks in this investment portfolio and provide recommendations.',
+        tokensPerRequest: 75000, // 75K tokens per analysis
+        requestsPerYear: 800
+      },
+      revenueForecast: {
+        selected: { name: 'NVIDIA Nemotron 3 Nano 30B A3B', price: 0.105, math: 91.0 },
+        premium: { name: 'o1-pro', price: 262.50 },
+        prompt: 'Build a revenue forecast model for Q4 2025 based on historical sales data and market trends.',
+        tokensPerRequest: 100000, // 100K tokens per forecast
+        requestsPerYear: 240
+      }
     };
 
     // Pipeline visualization functions
@@ -950,6 +993,40 @@ DASHBOARD_HTML = """
       executionLog.innerHTML = metricsHTML;
     }
 
+    // Display cost optimization metrics after batch cost test
+    function displayCostMetrics(results) {
+      const totalSavings = results.reduce((sum, r) => sum + r.annualSavings, 0);
+
+      let metricsHTML = `
+        <div class="text-sm text-slate-300 text-left">
+          <div class="space-y-3">
+      `;
+
+      results.forEach((result, index) => {
+        metricsHTML += `
+          <div class="border-t border-slate-700 pt-2">
+            <div class="font-semibold text-slate-200 mb-1">${result.scenario}</div>
+            <div class="space-y-0.5 text-xs">
+              <div>Selected: <strong>${result.selectedModel}</strong> (\$${result.selectedPrice.toFixed(2)}/1M)</div>
+              <div>Premium Alt: <strong>${result.premiumModel}</strong> (\$${result.premiumPrice.toFixed(2)}/1M)</div>
+              <div>Cost per Request: <strong>\$${result.costPerRequest.toFixed(4)}</strong> (${result.savingsPercent.toFixed(0)}% savings)</div>
+              <div>Annual Savings: <strong>\$${result.annualSavings.toLocaleString()}</strong></div>
+            </div>
+          </div>
+        `;
+      });
+
+      metricsHTML += `
+            <div class="border-t-2 border-emerald-500 pt-2 mt-2">
+              <div class="text-base font-bold text-emerald-400">Total Annual Savings: \$${totalSavings.toLocaleString()}</div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      executionLog.innerHTML = metricsHTML;
+    }
+
     // Batch resilience test - runs 2 scenarios with different prompts
     async function runBatchResilienceTest() {
       // Capture metrics at start of batch
@@ -1047,6 +1124,79 @@ DASHBOARD_HTML = """
       displaySecurityMetrics(batchStartMetrics);
     }
 
+    // Batch cost optimization test - runs 3 cost optimization scenarios
+    async function runBatchCostOptimization() {
+      // Display initiation message
+      commentaryFeed.innerHTML = '';
+      addCommentary('[INIT] ANALYZING COST OPTIMIZATION SCENARIOS');
+      await new Promise(r => setTimeout(r, 1500));
+
+      // Enable batch mode
+      isBatchMode = true;
+      batchTotal = 3;
+
+      const results = [];
+      const scenarios = [
+        { key: 'documentSummarization', name: 'Document Summarization' },
+        { key: 'financialAnalysis', name: 'Financial Analysis' },
+        { key: 'revenueForecast', name: 'Revenue Forecasting' }
+      ];
+
+      // Run 3 cost scenarios sequentially
+      for (let i = 0; i < scenarios.length; i++) {
+        currentScenarioNum = i + 1;
+        const scenarioData = COST_MODELS[scenarios[i].key];
+
+        // Show progress header
+        addCommentary('');
+        addCommentary(`> COST SCENARIO ${i + 1}/3: ${scenarios[i].name.toUpperCase()}`);
+
+        try {
+          // Execute cost scenario
+          await runScenario('cost', scenarioData.prompt);
+
+          // Calculate savings
+          const tokensPerMillion = scenarioData.tokensPerRequest / 1000000;
+          const costPerRequest = scenarioData.selected.price * tokensPerMillion;
+          const premiumCostPerRequest = scenarioData.premium.price * tokensPerMillion;
+          const savingsPerRequest = premiumCostPerRequest - costPerRequest;
+          const annualSavings = Math.round(savingsPerRequest * scenarioData.requestsPerYear);
+          const savingsPercent = ((savingsPerRequest / premiumCostPerRequest) * 100);
+
+          // Store result
+          results.push({
+            scenario: scenarios[i].name,
+            selectedModel: scenarioData.selected.name,
+            selectedPrice: scenarioData.selected.price,
+            premiumModel: scenarioData.premium.name,
+            premiumPrice: scenarioData.premium.price,
+            costPerRequest: costPerRequest,
+            annualSavings: annualSavings,
+            savingsPercent: savingsPercent
+          });
+
+          // Show savings in commentary
+          addCommentary(`+ Selected: ${scenarioData.selected.name} (\$${scenarioData.selected.price.toFixed(2)}/1M)`);
+          addCommentary(`+ Premium Alt: ${scenarioData.premium.name} (\$${scenarioData.premium.price.toFixed(2)}/1M)`);
+          addCommentary(`+ Annual Savings: \$${annualSavings.toLocaleString()}`);
+        } catch (error) {
+          console.error(`Error in cost scenario ${i + 1}:`, error);
+          addCommentary(`Error in scenario ${i + 1}: ${error.message}`);
+        }
+
+        // Pause between scenarios for readability
+        await new Promise(r => setTimeout(r, 2500));
+      }
+
+      // Disable batch mode
+      isBatchMode = false;
+      currentScenarioNum = 0;
+      batchTotal = 0;
+
+      // Display final cost metrics in status area
+      displayCostMetrics(results);
+    }
+
     // Scenario runner
     async function runScenario(scenarioKey, customPrompt = null) {
       const scenario = SCENARIOS[scenarioKey];
@@ -1100,6 +1250,32 @@ DASHBOARD_HTML = """
             }
 
             return { status: "pass" };
+          };
+        }
+      }
+
+      // For cost scenarios, dynamically set the router action
+      if (scenarioKey === 'cost') {
+        const routerStep = scenario.steps.find(s => s.id === 'router');
+        if (routerStep) {
+          // Capture prompt value in closure
+          const capturedPrompt = promptToUse;
+          routerStep.action = () => {
+            // Analyze task complexity from prompt keywords
+            let selectedModel = 'Apriel-v1.6-15B-Thinker'; // default
+
+            if (capturedPrompt.toLowerCase().includes('summarize') || capturedPrompt.toLowerCase().includes('summary')) {
+              selectedModel = 'Apriel-v1.6-15B-Thinker';
+            } else if (capturedPrompt.toLowerCase().includes('financial') || capturedPrompt.toLowerCase().includes('analysis')) {
+              selectedModel = 'Nova 2.0 Lite';
+            } else if (capturedPrompt.toLowerCase().includes('forecast') || capturedPrompt.toLowerCase().includes('revenue') || capturedPrompt.toLowerCase().includes('model')) {
+              selectedModel = 'NVIDIA Nemotron 3 Nano 30B A3B';
+            }
+
+            return {
+              status: "pass",
+              selectedModel: selectedModel
+            };
           };
         }
       }
@@ -1168,6 +1344,12 @@ DASHBOARD_HTML = """
           updatePipelineVisual(step.id, 'pass');
           if (scenario.explain?.pass) addCommentary(scenario.explain.pass);
           appendLog(getDetailedStepMessage(step.id, 'pass', context));
+
+          // For cost scenario router step, show selected model
+          if (scenarioKey === 'cost' && step.id === 'router' && result.selectedModel) {
+            addCommentary(`+ Intelligent routing selected: ${result.selectedModel}`);
+          }
+
           lastRunData.steps.push({id: step.id, status: 'pass'});
           // Allow time for connector line animation to complete
           await new Promise(r => setTimeout(r, 600));
@@ -1366,11 +1548,13 @@ DASHBOARD_HTML = """
         btn.classList.remove('bg-slate-700/50', 'hover:bg-slate-600');
         btn.classList.add('bg-blue-600', 'hover:bg-blue-500');
 
-        // Run batch test for normal and injection scenarios, single for others
+        // Run batch test for normal, injection, and cost scenarios, single for others
         if (scenarioKey === 'normal') {
           runBatchResilienceTest();
         } else if (scenarioKey === 'injection') {
           runBatchSecurityTest();
+        } else if (scenarioKey === 'cost') {
+          runBatchCostOptimization();
         } else {
           runScenario(scenarioKey);
         }
