@@ -870,11 +870,10 @@ DASHBOARD_HTML = """
       // Build simplified metrics HTML
       const metricsHTML = `
         <div class="text-sm text-slate-300">
-          <div class="mb-3 text-center font-bold">[SUMMARY] BATCH RESILIENCE TEST RESULTS</div>
           <div class="space-y-1">
-            <div>Model Failures Handled: ${failuresInBatch}</div>
-            <div>Downtime Prevented: ${downtimeInBatch} min</div>
-            <div>System Reliability: 100%</div>
+            <div>Model Failures Handled: <strong>${failuresInBatch}</strong></div>
+            <div>Downtime Prevented: <strong>${downtimeInBatch} min</strong></div>
+            <div>System Uptime: <strong>100%</strong></div>
           </div>
         </div>
       `;
