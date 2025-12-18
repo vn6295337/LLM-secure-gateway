@@ -933,11 +933,13 @@ DASHBOARD_HTML = """
     function displaySecurityMetrics(startMetrics) {
       const blockedInBatch = securityMetrics.adversarialBlocked - startMetrics.adversarialBlocked;
       const piiInBatch = securityMetrics.piiLeaksPrevented - startMetrics.piiLeaksPrevented;
+      const totalBlocked = blockedInBatch + piiInBatch;
       const finesAvoided = securityMetrics.complianceFinesAvoided;
 
       const metricsHTML = `
-        <div class="text-sm text-slate-300">
+        <div class="text-sm text-slate-300 text-left">
           <div class="space-y-1">
+            <div>Total Threats Blocked: <strong>${totalBlocked}/8</strong></div>
             <div>Adversarial Attempts Blocked: <strong>${blockedInBatch}</strong></div>
             <div>PII Leaks Prevented: <strong>${piiInBatch}</strong></div>
             <div>Compliance Fines Avoided: <strong>$${finesAvoided.toLocaleString()}</strong></div>
