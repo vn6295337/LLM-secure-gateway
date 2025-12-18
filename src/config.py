@@ -1173,7 +1173,6 @@ DASHBOARD_HTML = """
           lastRunData.tokensSaved = scenario.maxTokens;
           metricTokens.innerHTML = `${lastRunData.tokensConsumed}/<span id="metric-tokens-max">${scenario.maxTokens}</span>`;
           metricTokensSaved.textContent = lastRunData.tokensSaved;
-          metricCostSaved.textContent = '(~$' + (lastRunData.tokensSaved * 0.00003).toFixed(4) + ')';
           // Highlight metrics to show savings
           highlightElement('.card:has(#metric-latency)', 'pulse');
           addCommentary(`Request terminated. Zero resources consumed.`);
