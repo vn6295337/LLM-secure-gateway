@@ -1068,7 +1068,9 @@ DASHBOARD_HTML = """
             ];
 
             // Check for PII patterns
+            console.log(`[DEBUG Scenario ${currentScenarioNum}] Testing prompt: "${capturedPrompt}"`);
             const piiDetection = detectPII(capturedPrompt);
+            console.log(`[DEBUG Scenario ${currentScenarioNum}] PII detected:`, piiDetection);
 
             // Check for injection patterns
             const hasInjection = injectionPatterns.some(pattern => pattern.test(capturedPrompt));
