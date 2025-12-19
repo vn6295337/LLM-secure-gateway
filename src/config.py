@@ -266,32 +266,32 @@ DASHBOARD_HTML = """
               <!-- Auth -->
               <div id="step-auth" class="flex items-center gap-2 opacity-50">
                 <span class="text-xs uppercase tracking-wider text-slate-500 w-12 text-right">Auth</span>
-                <div class="w-8 h-8 rounded border border-slate-700 bg-slate-900 flex items-center justify-center" style="padding:1px;">
-                  <span style="font-size:28px;line-height:1;">🔑</span>
+                <div class="w-14 h-14 rounded border border-slate-700 bg-slate-900 flex items-center justify-center" style="padding:2px;">
+                  <span style="font-size:48px;line-height:1;">🔑</span>
                 </div>
               </div>
 
               <!-- Guard -->
               <div id="step-guard" class="flex items-center gap-2 opacity-50">
                 <span class="text-xs uppercase tracking-wider text-slate-500 w-12 text-right">Guard</span>
-                <div class="w-8 h-8 rounded border border-slate-700 bg-slate-900 flex items-center justify-center" style="padding:1px;">
-                  <span style="font-size:28px;line-height:1;">🛡️</span>
+                <div class="w-14 h-14 rounded border border-slate-700 bg-slate-900 flex items-center justify-center" style="padding:2px;">
+                  <span style="font-size:48px;line-height:1;">🛡️</span>
                 </div>
               </div>
 
               <!-- Router -->
               <div id="step-router" class="flex items-center gap-2 opacity-50">
                 <span class="text-xs uppercase tracking-wider text-slate-500 w-12 text-right">Route</span>
-                <div class="w-8 h-8 rounded border border-slate-700 bg-slate-900 flex items-center justify-center" style="padding:1px;">
-                  <span style="font-size:28px;line-height:1;">🔀</span>
+                <div class="w-14 h-14 rounded border border-slate-700 bg-slate-900 flex items-center justify-center" style="padding:2px;">
+                  <span style="font-size:48px;line-height:1;">🔀</span>
                 </div>
               </div>
 
               <!-- Inference -->
               <div id="step-llm" class="flex items-center gap-2 opacity-50">
                 <span class="text-xs uppercase tracking-wider text-slate-500 w-12 text-right">Infer</span>
-                <div class="w-8 h-8 rounded border border-slate-700 bg-slate-900 flex items-center justify-center relative" style="padding:1px;">
-                  <span style="font-size:28px;line-height:1;">⚙</span>
+                <div class="w-14 h-14 rounded border border-slate-700 bg-slate-900 flex items-center justify-center relative" style="padding:2px;">
+                  <span style="font-size:48px;line-height:1;">⚙</span>
                   <div id="active-provider-badge"
                        class="absolute -top-1 -right-1 bg-green-500 text-black px-1 rounded font-bold hidden"
                        style="font-size:7px;">
@@ -740,14 +740,14 @@ DASHBOARD_HTML = """
 
         // Reset Inner Box
         const box = el.querySelector('div');
-        box.className = 'w-8 h-8 rounded border border-slate-700 bg-slate-900 flex items-center justify-center';
+        box.className = 'w-14 h-14 rounded border border-slate-700 bg-slate-900 flex items-center justify-center';
         if(id === 'step-llm') box.classList.add('relative');
-        box.style.padding = '1px';
+        box.style.padding = '2px';
 
         // Reset Icon Text (in case we changed it to 🚫)
         const span = box.querySelector('span');
         if(span) {
-          span.style.fontSize = '28px';
+          span.style.fontSize = '48px';
           span.style.lineHeight = '1';
           if(id === 'step-auth') span.innerText = '🔑';
           if(id === 'step-guard') span.innerText = '🛡️';
