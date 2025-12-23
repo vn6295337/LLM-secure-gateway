@@ -69,7 +69,8 @@ async def validate_api_key(api_key: str = Depends(api_key_header)):
 
 
 # --- Perspective API Toxicity Detection ---
-PERSPECTIVE_API_KEY = os.getenv("PERSPECTIVE_API_KEY") or os.getenv("API_KEY")
+# Uses API_KEY environment variable for Perspective API authentication
+PERSPECTIVE_API_KEY = os.getenv("API_KEY")
 PERSPECTIVE_API_URL = "https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze"
 TOXICITY_THRESHOLD = float(os.getenv("TOXICITY_THRESHOLD", "0.7"))
 
@@ -93,7 +94,7 @@ def detect_toxicity(text: str) -> dict:
             "is_toxic": False,
             "scores": {},
             "blocked_categories": [],
-            "error": "Perspective API key not configured"
+            "error": "API_KEY not configured for Perspective API"
         }
 
     try:
