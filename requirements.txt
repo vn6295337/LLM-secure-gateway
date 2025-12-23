@@ -15,3 +15,6 @@ requests>=2.31.0
 
 # Security - Rate limiting
 slowapi>=0.1.9
+
+# Google API Client for Perspective API
+google-api-python-client>=2.100.0

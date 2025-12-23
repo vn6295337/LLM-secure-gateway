@@ -69,7 +69,8 @@ async def validate_api_key(api_key: str = Depends(api_key_header)):
 
 
 # --- Perspective API Toxicity Detection ---
-PERSPECTIVE_API_URL = "https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze"
+# Uses Google API Client library as per official documentation
+PERSPECTIVE_DISCOVERY_URL = "https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1"
 
 # Attributes to check with Perspective API
 PERSPECTIVE_ATTRIBUTES = {
@@ -86,6 +87,7 @@ def detect_toxicity(text: str) -> dict:
     """
     Detect toxic content using Google's Perspective API.
     Uses API_KEY environment variable for authentication.
+    Uses Google API Client library as per official documentation.
     Returns: {is_toxic: bool, scores: dict, blocked_categories: list, error: str|None}
     """
     # Read API key at runtime to pick up HF Spaces secrets
@@ -101,37 +103,30 @@ def detect_toxicity(text: str) -> dict:
         }
 
     try:
-        payload = {
+        from googleapiclient import discovery
+        from googleapiclient.errors import HttpError
+
+        # Build client using Google API Client library (per documentation)
+        client = discovery.build(
+            "commentanalyzer",
+            "v1alpha1",
+            developerKey=api_key,
+            discoveryServiceUrl=PERSPECTIVE_DISCOVERY_URL,
+            static_discovery=False,
+        )
+
+        analyze_request = {
             "comment": {"text": text},
             "requestedAttributes": PERSPECTIVE_ATTRIBUTES,
             "languages": ["en"]
         }
 
-        response = requests.post(
-            f"{PERSPECTIVE_API_URL}?key={api_key}",
-            json=payload,
-            headers={"Content-Type": "application/json"},
-            timeout=5
-        )
+        response = client.comments().analyze(body=analyze_request).execute()
 
-        if response.status_code != 200:
-            error_detail = ""
-            try:
-                error_detail = response.json().get("error", {}).get("message", "")
-            except:
-                pass
-            return {
-                "is_toxic": False,
-                "scores": {},
-                "blocked_categories": [],
-                "error": f"Perspective API error {response.status_code}: {error_detail}"
-            }
-
-        data = response.json()
         scores = {}
         blocked_categories = []
 
-        for attr, attr_data in data.get("attributeScores", {}).items():
+        for attr, attr_data in response.get("attributeScores", {}).items():
             score = attr_data.get("summaryScore", {}).get("value", 0)
             scores[attr] = round(score, 3)
             if score >= toxicity_threshold:
@@ -144,12 +139,15 @@ def detect_toxicity(text: str) -> dict:
             "error": None
         }
 
-    except requests.exceptions.Timeout:
+    except HttpError as e:
+        error_msg = str(e)
+        if hasattr(e, 'reason'):
+            error_msg = e.reason
         return {
             "is_toxic": False,
             "scores": {},
             "blocked_categories": [],
-            "error": "Perspective API timeout"
+            "error": f"Perspective API error: {error_msg}"
         }
     except Exception as e:
         return {
