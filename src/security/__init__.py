@@ -70,7 +70,10 @@ async def validate_api_key(api_key: str = Depends(api_key_header)):
 
 # --- Gemini Safety Filter for Toxicity Detection ---
 # Uses Gemini's built-in content safety that returns HARM_CATEGORY_* ratings
-GEMINI_SAFETY_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
+# Uses GEMINI_MODEL env var or defaults to gemini-2.5-flash
+def get_gemini_safety_url():
+    model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+    return f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 
 # Gemini harm categories (all available categories)
 HARM_CATEGORIES = [
@@ -112,7 +115,7 @@ def detect_toxicity(text: str) -> dict:
         }
 
         response = requests.post(
-            f"{GEMINI_SAFETY_URL}?key={api_key}",
+            f"{get_gemini_safety_url()}?key={api_key}",
             json=payload,
             headers={"Content-Type": "application/json"},
             timeout=10
