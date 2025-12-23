@@ -9,7 +9,7 @@ Environment variables for the Enterprise AI Gateway.
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `SERVICE_API_KEY` | Gateway authentication key | `secure-abc123xyz` |
-| `GEMINI_API_KEY` | Google Gemini API key | `AIzaSy...` |
+| `GEMINI_API_KEY` | Google Gemini API key | `your_gemini_key` |
 
 ## Optional Variables
 
@@ -44,7 +44,7 @@ Environment variables for the Enterprise AI Gateway.
 ```bash
 # Required
 SERVICE_API_KEY=secure-YourSecretKey123
-GEMINI_API_KEY=AIzaSyCXGpbbsuYxkGv2o_ZcJD385Kt168YFiYc
+GEMINI_API_KEY=your_gemini_api_key
 
 # Optional - Fallback LLMs
 GROQ_API_KEY=gsk_your_groq_key
