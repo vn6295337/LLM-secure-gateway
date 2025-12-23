@@ -263,27 +263,27 @@
             <div class="flex flex-col justify-between" style="min-width:85px;height:200px;">
 
               <!-- Auth -->
-              <div id="step-auth" class="flex items-center gap-2 opacity-50 py-1">
-                <span class="text-xs uppercase tracking-wider text-slate-500 w-12 text-right">Auth</span>
-                <span style="font-size:26px;line-height:26px;height:26px;display:inline-block;vertical-align:middle;">🔑</span>
+              <div id="step-auth" class="flex items-center gap-2 opacity-50 py-1.5">
+                <span class="text-xs uppercase tracking-wider text-slate-500 w-12 text-right leading-none">Auth</span>
+                <span class="text-2xl leading-none">🔑</span>
               </div>
 
               <!-- Guard -->
-              <div id="step-guard" class="flex items-center gap-2 opacity-50 py-1">
-                <span class="text-xs uppercase tracking-wider text-slate-500 w-12 text-right">Guard</span>
-                <span style="font-size:26px;line-height:26px;height:26px;display:inline-block;vertical-align:middle;">🛡️</span>
+              <div id="step-guard" class="flex items-center gap-2 opacity-50 py-1.5">
+                <span class="text-xs uppercase tracking-wider text-slate-500 w-12 text-right leading-none">Guard</span>
+                <span class="text-2xl leading-none">🛡️</span>
               </div>
 
               <!-- Router -->
-              <div id="step-router" class="flex items-center gap-2 opacity-50 py-1">
-                <span class="text-xs uppercase tracking-wider text-slate-500 w-12 text-right">Route</span>
-                <span style="font-size:26px;line-height:26px;height:26px;display:inline-block;vertical-align:middle;">🔀</span>
+              <div id="step-router" class="flex items-center gap-2 opacity-50 py-1.5">
+                <span class="text-xs uppercase tracking-wider text-slate-500 w-12 text-right leading-none">Route</span>
+                <span class="text-2xl leading-none">🔀</span>
               </div>
 
               <!-- Inference -->
-              <div id="step-llm" class="flex items-center gap-2 opacity-50 relative py-1">
-                <span class="text-xs uppercase tracking-wider text-slate-500 w-12 text-right">Infer</span>
-                <span style="font-size:26px;line-height:26px;height:26px;display:inline-block;vertical-align:middle;">⚙</span>
+              <div id="step-llm" class="flex items-center gap-2 opacity-50 relative py-1.5">
+                <span class="text-xs uppercase tracking-wider text-slate-500 w-12 text-right leading-none">Infer</span>
+                <span class="text-2xl leading-none">⚙</span>
                 <div id="active-provider-badge"
                      class="absolute -top-1 right-0 bg-green-500 text-black px-1 rounded font-bold hidden"
                      style="font-size:7px;">
@@ -729,19 +729,25 @@
 
       // 1. STATE: RUNNING (Pulse the node with green glow)
       if (status === 'running') {
-        target.node.classList.remove('opacity-50', 'pulse-highlight-blocked');
+        target.node.classList.remove('opacity-50', 'pulse-highlight-blocked', 'pulse-highlight-success');
+        // Force reflow to restart animation
+        void target.node.offsetWidth;
         target.node.classList.add('active', 'pulse-highlight-success');
       }
 
       // 2. STATE: PASS (Green glow)
       else if (status === 'pass') {
         target.node.classList.remove('pulse-highlight-success', 'pulse-highlight-blocked');
+        // Force reflow to restart animation
+        void target.node.offsetWidth;
         target.node.classList.add('pulse-highlight-success');
       }
 
       // 3. STATE: BLOCKED (Red glow)
       else if (status === 'block' || status === 'fail') {
-        target.node.classList.remove('pulse-highlight-success');
+        target.node.classList.remove('pulse-highlight-success', 'pulse-highlight-blocked');
+        // Force reflow to restart animation
+        void target.node.offsetWidth;
         target.node.classList.add('pulse-highlight-blocked');
 
         // Change Icon to X
@@ -764,26 +770,24 @@
     // Helper to reset the visuals before a new run
     function clearPipelineVisuals() {
       // Reset Nodes
-      ['step-auth', 'step-guard', 'step-router', 'step-llm'].forEach(id => {
+      const iconMap = {
+        'step-auth': '🔑',
+        'step-guard': '🛡️',
+        'step-router': '🔀',
+        'step-llm': '⚙'
+      };
+
+      Object.keys(iconMap).forEach(id => {
         const el = document.getElementById(id);
         if(!el) return;
         el.classList.add('opacity-50');
         el.classList.remove('active', 'pulse-highlight', 'pulse-highlight-success', 'pulse-highlight-blocked');
 
         // Reset Icon Text (in case we changed it to 🚫)
-        // Get icon span directly (no container div anymore)
         const spans = el.querySelectorAll('span');
         const iconSpan = spans[spans.length - 1]; // Last span is the icon
-        if(iconSpan && iconSpan.style.fontSize) { // Check if it's the icon span
-          iconSpan.style.fontSize = '26px';
-          iconSpan.style.lineHeight = '26px';
-          iconSpan.style.height = '26px';
-          iconSpan.style.display = 'inline-block';
-          iconSpan.style.verticalAlign = 'middle';
-          if(id === 'step-auth') iconSpan.innerText = '🔑';
-          if(id === 'step-guard') iconSpan.innerText = '🛡️';
-          if(id === 'step-router') iconSpan.innerText = '🔀';
-          if(id === 'step-llm') iconSpan.innerText = '⚙';
+        if(iconSpan) {
+          iconSpan.innerText = iconMap[id];
         }
       });
 
