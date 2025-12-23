@@ -639,16 +639,23 @@
     let pauseState = {
       isPaused: false,
       currentScenario: null,
-      resumeCallback: null    // Function to call when resuming
+      resumeCallback: null,    // Function to call when resuming
+      abortCallback: null      // Function to call when aborting
     };
 
     // Check if execution should pause at this point
     async function checkPausePoint() {
+      // Check if scenario was aborted
+      if (pauseState.currentScenario && buttonStates[pauseState.currentScenario] === 'ready') {
+        throw new Error('ScenarioAborted');
+      }
+
       if (!pauseState.isPaused) return;
 
-      // Wait until resumed
-      return new Promise(resolve => {
+      // Wait until resumed or aborted
+      return new Promise((resolve, reject) => {
         pauseState.resumeCallback = resolve;
+        pauseState.abortCallback = () => reject(new Error('ScenarioAborted'));
       });
     }
 
@@ -1331,6 +1338,9 @@
 
     // Scenario runner
     async function runScenario(scenarioKey, customPrompt = null) {
+      // Early abort check
+      await checkPausePoint();
+
       const scenario = SCENARIOS[scenarioKey];
       if (!scenario) return;
 
@@ -1707,10 +1717,21 @@
           if (btn) setButtonVisual(btn, 'ready');
         }
       }
+      // Call abort callback if waiting on pause
+      if (pauseState.abortCallback) {
+        pauseState.abortCallback();
+      }
       // Reset pause state
       pauseState.isPaused = false;
       pauseState.currentScenario = null;
       pauseState.resumeCallback = null;
+      pauseState.abortCallback = null;
+      // Reset batch mode state
+      isBatchMode = false;
+      currentScenarioNum = 0;
+      batchTotal = 0;
+      // Reset pipeline visuals
+      clearPipelineVisuals();
     }
 
     // wire scenario buttons with toggle behavior
@@ -1743,8 +1764,10 @@
           appendLog('▶ Execution resumed.');
           // Call the resume callback to continue execution
           if (pauseState.resumeCallback) {
-            pauseState.resumeCallback();
+            const callback = pauseState.resumeCallback;
             pauseState.resumeCallback = null;
+            pauseState.abortCallback = null;
+            callback();
           }
           return;
         }
@@ -1755,10 +1778,11 @@
         );
         if (runningOrPaused && runningOrPaused !== scenarioKey) {
           abortCurrentScenario();
-          // Clear execution log
+          // Clear execution log and commentary
           statusMessageCounter = 0;
           statusMessages = [];
           executionLog.innerHTML = '';
+          commentaryFeed.innerHTML = '';
         }
 
         // UPDATE STATE: Mark as running
@@ -1808,9 +1832,12 @@
         } catch (error) {
           console.error('Batch test error:', error);
 
-          // Check if it was aborted by user
-          if (error.name === 'AbortError') {
-            // Already handled in abort section
+          // Check if it was aborted by user or scenario switch
+          if (error.name === 'AbortError' || error.message === 'ScenarioAborted') {
+            // Already handled in abort section - just ensure cleanup
+            buttonStates[scenarioKey] = 'ready';
+            abortControllers[scenarioKey] = null;
+            setButtonVisual(btn, 'ready');
             return;
           }
 
