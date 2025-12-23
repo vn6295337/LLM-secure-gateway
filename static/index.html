@@ -2109,10 +2109,10 @@
         appendLog('GUARD: No PII exposure found');
         await new Promise(r => setTimeout(r, 400));
 
-        appendLog('GUARD: Checking AI safety via Perspective API...');
+        appendLog('GUARD: Checking AI safety via Gemini Safety Filters...');
         await new Promise(r => setTimeout(r, 400));
 
-        // Call Perspective API for toxicity detection
+        // Call Gemini Safety API for toxicity detection
         try {
           const toxicityResponse = await fetch('/check-toxicity', {
             method: 'POST',
@@ -2122,19 +2122,20 @@
           const toxicityData = await toxicityResponse.json();
 
           if (toxicityData.error) {
-            // If API_KEY not configured or invalid, block the request and show setup instructions
+            // If GEMINI_API_KEY not configured, show error
             updatePipelineVisual('input', 'fail');
-            appendLog(`GUARD: Perspective API error: ${toxicityData.error}`);
-            appendLog('GUARD: Set API_KEY env var with Google Cloud key (Perspective API enabled)');
+            appendLog(`GUARD: Gemini Safety error: ${toxicityData.error}`);
             metricStatus.textContent = 'Config Error';
             lastRunData = { scenario: 'custom', final: 'error', error: toxicityData.error };
             return;
           } else if (toxicityData.is_toxic) {
             updatePipelineVisual('input', 'fail');
-            const categories = toxicityData.blocked_categories.join(', ');
+            const categories = toxicityData.blocked_categories
+              .map(c => c.replace('HARM_CATEGORY_', '').replace(/_/g, ' '))
+              .join(', ');
             const topScore = Math.max(...Object.values(toxicityData.scores));
-            appendLog(`GUARD: ⚠️ Toxic content detected - BLOCKED`);
-            appendLog(`GUARD: Categories: ${categories} (score: ${(topScore * 100).toFixed(0)}%)`);
+            appendLog(`GUARD: ⚠️ Harmful content detected - BLOCKED`);
+            appendLog(`GUARD: Categories: ${categories} (${(topScore * 100).toFixed(0)}% confidence)`);
             metricStatus.textContent = 'Blocked';
             lastRunData = { scenario: 'custom', final: 'blocked', error: `Toxic content: ${categories}` };
             return;
@@ -2143,11 +2144,13 @@
             const scores = toxicityData.scores;
             if (Object.keys(scores).length > 0) {
               const topAttr = Object.entries(scores).sort((a, b) => b[1] - a[1])[0];
-              appendLog(`GUARD: Toxicity scan passed (${topAttr[0]}: ${(topAttr[1] * 100).toFixed(0)}%)`);
+              const cleanName = topAttr[0].replace('HARM_CATEGORY_', '').replace(/_/g, ' ');
+              appendLog(`GUARD: Safety scan passed (${cleanName}: ${(topAttr[1] * 100).toFixed(0)}%)`);
             }
           }
         } catch (toxErr) {
-          appendLog('GUARD: Perspective API unavailable, using fallback checks');
+          appendLog('GUARD: Gemini Safety API unavailable');
+          return;
         }
         appendLog('GUARD: AI safety check passed');
         await new Promise(r => setTimeout(r, 400));

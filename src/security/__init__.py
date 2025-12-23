@@ -68,69 +68,114 @@ async def validate_api_key(api_key: str = Depends(api_key_header)):
     return api_key
 
 
-# --- Perspective API Toxicity Detection ---
-# Uses Google API Client library as per official documentation
-PERSPECTIVE_DISCOVERY_URL = "https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1"
+# --- Gemini Safety Filter for Toxicity Detection ---
+# Uses Gemini's built-in content safety that returns HARM_CATEGORY_* ratings
+GEMINI_SAFETY_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent"
 
-# Attributes to check with Perspective API
-PERSPECTIVE_ATTRIBUTES = {
-    "TOXICITY": {},
-    "SEVERE_TOXICITY": {},
-    "IDENTITY_ATTACK": {},
-    "INSULT": {},
-    "PROFANITY": {},
-    "THREAT": {},
-    "SEXUALLY_EXPLICIT": {},
-}
+# Gemini harm categories
+HARM_CATEGORIES = [
+    "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+    "HARM_CATEGORY_HATE_SPEECH",
+    "HARM_CATEGORY_HARASSMENT",
+    "HARM_CATEGORY_DANGEROUS_CONTENT",
+]
 
 def detect_toxicity(text: str) -> dict:
     """
-    Detect toxic content using Google's Perspective API.
-    Uses API_KEY environment variable for authentication.
-    Uses Google API Client library as per official documentation.
+    Detect toxic content using Gemini's built-in safety filters.
+    Uses GEMINI_API_KEY environment variable for authentication.
     Returns: {is_toxic: bool, scores: dict, blocked_categories: list, error: str|None}
     """
     # Read API key at runtime to pick up HF Spaces secrets
-    api_key = os.getenv("API_KEY")
-    toxicity_threshold = float(os.getenv("TOXICITY_THRESHOLD", "0.7"))
+    api_key = os.getenv("GEMINI_API_KEY")
 
     if not api_key:
         return {
             "is_toxic": False,
             "scores": {},
             "blocked_categories": [],
-            "error": "API_KEY not configured for Perspective API"
+            "error": "GEMINI_API_KEY not configured"
         }
 
     try:
-        from googleapiclient import discovery
-        from googleapiclient.errors import HttpError
+        # Set safety settings to BLOCK_NONE to get ratings without blocking
+        # This lets us see the safety scores and make our own decision
+        safety_settings = [
+            {"category": cat, "threshold": "BLOCK_NONE"}
+            for cat in HARM_CATEGORIES
+        ]
 
-        # Build client using Google API Client library (per documentation)
-        client = discovery.build(
-            "commentanalyzer",
-            "v1alpha1",
-            developerKey=api_key,
-            discoveryServiceUrl=PERSPECTIVE_DISCOVERY_URL,
-            static_discovery=False,
-        )
-
-        analyze_request = {
-            "comment": {"text": text},
-            "requestedAttributes": PERSPECTIVE_ATTRIBUTES,
-            "languages": ["en"]
+        payload = {
+            "contents": [{"parts": [{"text": text}]}],
+            "safetySettings": safety_settings,
         }
 
-        response = client.comments().analyze(body=analyze_request).execute()
+        response = requests.post(
+            f"{GEMINI_SAFETY_URL}?key={api_key}",
+            json=payload,
+            headers={"Content-Type": "application/json"},
+            timeout=10
+        )
 
+        if response.status_code != 200:
+            error_detail = ""
+            try:
+                error_detail = response.json().get("error", {}).get("message", "")
+            except:
+                pass
+            return {
+                "is_toxic": False,
+                "scores": {},
+                "blocked_categories": [],
+                "error": f"Gemini API error {response.status_code}: {error_detail}"
+            }
+
+        data = response.json()
         scores = {}
         blocked_categories = []
 
-        for attr, attr_data in response.get("attributeScores", {}).items():
-            score = attr_data.get("summaryScore", {}).get("value", 0)
-            scores[attr] = round(score, 3)
-            if score >= toxicity_threshold:
-                blocked_categories.append(attr)
+        # Check if content was blocked
+        if "promptFeedback" in data:
+            feedback = data["promptFeedback"]
+            if feedback.get("blockReason"):
+                blocked_categories.append(feedback["blockReason"])
+
+            # Extract safety ratings
+            for rating in feedback.get("safetyRatings", []):
+                category = rating.get("category", "UNKNOWN")
+                probability = rating.get("probability", "NEGLIGIBLE")
+
+                # Convert probability to score
+                prob_scores = {
+                    "NEGLIGIBLE": 0.1,
+                    "LOW": 0.3,
+                    "MEDIUM": 0.6,
+                    "HIGH": 0.9
+                }
+                score = prob_scores.get(probability, 0.0)
+                scores[category] = score
+
+                # Block if HIGH probability
+                if probability == "HIGH":
+                    blocked_categories.append(category)
+
+        # Also check candidate safety ratings
+        for candidate in data.get("candidates", []):
+            for rating in candidate.get("safetyRatings", []):
+                category = rating.get("category", "UNKNOWN")
+                probability = rating.get("probability", "NEGLIGIBLE")
+
+                prob_scores = {
+                    "NEGLIGIBLE": 0.1,
+                    "LOW": 0.3,
+                    "MEDIUM": 0.6,
+                    "HIGH": 0.9
+                }
+                score = prob_scores.get(probability, 0.0)
+                scores[category] = score
+
+                if probability == "HIGH" and category not in blocked_categories:
+                    blocked_categories.append(category)
 
         return {
             "is_toxic": len(blocked_categories) > 0,
@@ -139,15 +184,12 @@ def detect_toxicity(text: str) -> dict:
             "error": None
         }
 
-    except HttpError as e:
-        error_msg = str(e)
-        if hasattr(e, 'reason'):
-            error_msg = e.reason
+    except requests.exceptions.Timeout:
         return {
             "is_toxic": False,
             "scores": {},
             "blocked_categories": [],
-            "error": f"Perspective API error: {error_msg}"
+            "error": "Gemini API timeout"
         }
     except Exception as e:
         return {
