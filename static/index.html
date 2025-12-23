@@ -219,7 +219,7 @@
       <!-- Try the Gateway (50% - 2 columns) -->
       <div class="lg:col-span-2">
         <div class="card p-2">
-          <h2 class="font-medium text-xs mb-1.5">Try the Gateway: Enter Your Prompt</h2>
+          <h2 class="font-medium text-xs mb-1.5">Try the Gateway Real-Time: Enter Your Prompt</h2>
 
           <div class="space-y-2">
             <div class="prompt-wrap prompt-glow">
@@ -246,8 +246,20 @@
         <!-- API Key Input -->
         <div class="card p-2 mt-2">
           <div class="flex items-center gap-2">
-            <span class="text-compact whitespace-nowrap text-white" style="font-size: 12px;">Enter API Key:</span>
-            <input id="input-api" type="password" class="flex-1 focus-ring rounded text-xs px-2 py-0.5" value="secure-demo-ak7x9...">
+            <span class="text-compact whitespace-nowrap text-white" style="font-size: 12px;">API Key:</span>
+            <input id="input-api" type="password" class="flex-1 focus-ring rounded text-xs px-2 py-0.5" placeholder="Paste your API key here...">
+          </div>
+          <!-- Demo API Key Hint Bubble -->
+          <div class="mt-2 bg-emerald-900/40 border border-emerald-700/50 rounded-lg p-2">
+            <div class="flex items-center gap-1 mb-1">
+              <span class="text-emerald-400 text-xs">💡 Try with demo key:</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <code id="demo-api-key" class="flex-1 text-xs font-mono text-emerald-300 bg-slate-900/50 px-2 py-1 rounded truncate">secure-YDiNiwSV5k6A4lKu2EgKt2us-JzdMHEiOeM_rz76CvE</code>
+              <button id="copy-demo-key" class="px-2 py-1 bg-emerald-700 hover:bg-emerald-600 rounded text-xs whitespace-nowrap text-white" title="Copy Demo Key">
+                📋 Copy
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -1893,6 +1905,23 @@
       statusMessageCounter = 0;
       statusMessages = [];
     }
+
+    // Copy demo API key handler
+    document.getElementById('copy-demo-key')?.addEventListener('click', () => {
+      const demoKey = document.getElementById('demo-api-key').textContent;
+      navigator.clipboard.writeText(demoKey).then(() => {
+        const btn = document.getElementById('copy-demo-key');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '✓ Copied!';
+        btn.classList.remove('bg-emerald-700', 'hover:bg-emerald-600');
+        btn.classList.add('bg-green-600');
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+          btn.classList.remove('bg-green-600');
+          btn.classList.add('bg-emerald-700', 'hover:bg-emerald-600');
+        }, 1500);
+      });
+    });
 
     // Execute custom prompt handler - REAL API CALL
     document.getElementById('execute-custom')?.addEventListener('click', async () => {
