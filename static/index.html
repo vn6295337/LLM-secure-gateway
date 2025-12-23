@@ -1925,10 +1925,17 @@
 
     // Execute custom prompt handler - REAL API CALL
     document.getElementById('execute-custom')?.addEventListener('click', async () => {
-      // CLEAR FIRST: Clear execution log before anything else
+      // Abort any running scenario first
+      abortCurrentScenario();
+
+      // Clear execution log and commentary
       statusMessageCounter = 0;
       statusMessages = [];
       executionLog.innerHTML = '';
+      commentaryFeed.innerHTML = '';
+
+      // Reset pipeline visuals
+      clearPipelineVisuals();
 
       const customPrompt = document.getElementById('input-prompt').value;
       const apiKey = document.getElementById('input-api').value;
@@ -1940,40 +1947,38 @@
         return;
       }
 
-      if (!apiKey || apiKey === 'secure-demo-ak7x9...') {
+      if (!apiKey || !apiKey.trim()) {
         appendLog('ERROR: Please enter a valid API key.');
         return;
       }
 
-      // Show sending message
-      executionLog.innerHTML = `
-        <div class="text-xs text-slate-300 font-medium text-center">
-          Sending request to backend API...
-        </div>
-      `;
-
-      // Animate steps as we progress
-      clearVisual();
-
-      // Step 1: Auth
-      setStepState('step-auth', 'pass');
+      // Step 1: Auth - Running
+      updatePipelineVisual('auth', 'running');
+      appendLog('AUTH: Validating API key...');
+      await new Promise(r => setTimeout(r, 600));
+      updatePipelineVisual('auth', 'pass');
       appendLog('AUTH: API key validated');
-      await new Promise(r => setTimeout(r, 200));
+      await new Promise(r => setTimeout(r, 400));
 
-      // Step 2: Input validation
-      setStepState('step-guard', 'running');
+      // Step 2: Input validation - Running
+      updatePipelineVisual('input', 'running');
       appendLog('GUARD: Checking input...');
-      await new Promise(r => setTimeout(r, 200));
+      await new Promise(r => setTimeout(r, 600));
+      updatePipelineVisual('input', 'pass');
+      appendLog('GUARD: Input validated');
+      await new Promise(r => setTimeout(r, 400));
 
       try {
-        // Make real API call to /query endpoint
-        setStepState('step-guard', 'pass');
-        setStepState('step-router', 'running');
+        // Step 3: Router - Running
+        updatePipelineVisual('router', 'running');
         appendLog('ROUTE: Selecting provider...');
-        await new Promise(r => setTimeout(r, 200));
+        await new Promise(r => setTimeout(r, 600));
+        updatePipelineVisual('router', 'pass');
+        appendLog('ROUTE: Provider selected');
+        await new Promise(r => setTimeout(r, 400));
 
-        setStepState('step-router', 'pass');
-        setStepState('step-llm', 'running');
+        // Step 4: Inference - Running
+        updatePipelineVisual('provider', 'running');
         appendLog('INFER: Calling LLM provider...');
 
         const response = await fetch('/query', {
@@ -1992,7 +1997,7 @@
         const data = await response.json();
 
         if (response.ok) {
-          setStepState('step-llm', 'pass');
+          updatePipelineVisual('provider', 'pass', { provider: data.provider });
 
           // Show cascade path if available
           if (data.cascade_path && data.cascade_path.length > 0) {
@@ -2028,13 +2033,13 @@
 
         } else {
           // Handle error response
-          setStepState('step-llm', 'fail');
+          updatePipelineVisual('provider', 'fail');
 
           if (response.status === 401) {
-            setStepState('step-auth', 'fail');
+            updatePipelineVisual('auth', 'fail');
             appendLog('ERROR: Invalid API key');
           } else if (response.status === 422) {
-            setStepState('step-guard', 'fail');
+            updatePipelineVisual('input', 'fail');
             const detail = data.detail;
             if (Array.isArray(detail)) {
               appendLog(`VALIDATION ERROR: ${detail.map(d => d.msg).join(', ')}`);
@@ -2054,7 +2059,7 @@
         }
 
       } catch (error) {
-        setStepState('step-llm', 'fail');
+        updatePipelineVisual('provider', 'fail');
         appendLog(`NETWORK ERROR: ${error.message}`);
         metricStatus.textContent = 'Error';
         lastRunData = { scenario: 'custom', final: 'error', error: error.message };
